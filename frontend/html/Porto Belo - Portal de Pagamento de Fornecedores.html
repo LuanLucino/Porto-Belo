@@ -65,86 +65,65 @@
                 <!-- Título da seção -->
                 <h2>PAGAMENTO DE FORNECEDOR</h2>
 
-                <!-- Formulário de acesso por CNPJ -->
-                <form class="styles_form__pLbUz">
+              <form class="styles_form__pLbUz" onsubmit="event.preventDefault();">
+                <div class="styles_container__vlAK4">
+                  <label for="cnpj">CNPJ</label>
+                  <input id="cnpj" name="cnpj" autocomplete="off" class="undefined" placeholder="00.000.000/0000-00">
+                </div>
 
-                  <!-- Campo CNPJ -->
-                  <div class="styles_container__vlAK4">
-                    <label for="cnpj">CNPJ</label>
-                    <input
-                      id="cnpj"
-                      name="cnpj"
-                      autocomplete="off"
-                      class="undefined"
-                    >
-                  </div>
+                <button 
+                  class="w-full rounded bg-success px-16 py-2 text-lg text-white transition-colors hover:bg-success-hover" 
+                  type="button" 
+                  onclick="enviarCnpj()"
+                >
+                  <p>Acessar</p>
+                </button>
+              </form>
 
-                  <!-- Botão de envio -->
-                  <button
-                    class="w-full rounded bg-success px-16 py-2 text-lg text-white transition-colors hover:bg-success-hover"
-                    type="submit"
-                  >
-                    <p>Acessar</p>
-                  </button>
-
-                </form>
-                <!-- /Formulário de acesso por CNPJ -->
-
-              </div>
-              <!-- /Card central do formulário de acesso -->
-
-            </main>
-
-          </div>
+            </div>
+          </main>
         </div>
-        <!-- /Layout externo -->
-
       </div>
-      <!-- /Raiz da aplicação -->
-
     </div>
-    <!-- /Ponto de entrada do Next.js -->
+  </div>
 
+  <script>
+    async function enviarCnpj() {
+      // Pega o valor pelo ID que já está no seu input
+      const cnpjInput = document.getElementById('cnpj');
+      const cnpjDigitado = cnpjInput.value;
 
-    <!-- ===== Dados de build do Next.js (SSG/SSR metadata) ===== -->
-    <script id="__NEXT_DATA__" type="application/json">
-      {
-        "props": { "pageProps": {} },
-        "page": "/access",
-        "query": {},
-        "buildId": "2oJLaxTbD3mN102hQiePt",
-        "nextExport": true,
-        "autoExport": true,
-        "isFallback": false,
-        "scriptLoader": []
+      if (!cnpjDigitado) {
+        alert("Por favor, digite o CNPJ.");
+        return;
       }
-    </script>
-    <!-- ========================================================= -->
 
+      try {
+        const response = await fetch('http://localhost:3001/api/consultar-cnpj', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            cnpj: cnpjDigitado
+          })
+        });
 
-    <!-- ===== Anunciador de rotas para acessibilidade (Next.js) ===== -->
-    <next-route-announcer>
-      <p
-        aria-live="assertive"
-        id="__next-route-announcer__"
-        role="alert"
-        style="
-          border: 0px;
-          clip: rect(0px, 0px, 0px, 0px);
-          height: 1px;
-          margin: -1px;
-          overflow: hidden;
-          padding: 0px;
-          position: absolute;
-          width: 1px;
-          white-space: nowrap;
-          overflow-wrap: normal;
-        "
-      ></p>
-    </next-route-announcer>
-    <!-- ============================================================= -->
+        const data = await response.json();
 
-  </body>
-  <!-- ================================================== -->
+        if (data.sucesso) {
+          console.log('Fornecedor encontrado:', data.fornecedor);
+          // Redireciona para a próxima etapa
+          window.location.href = "Dados da nota fiscal- Porto Belo.html";
+        } else {
+          alert('Erro: ' + (data.erro || "CNPJ não encontrado"));
+        }
+      } catch (error) {
+        console.error('Erro ao conectar no back:', error);
+        alert('Erro ao conectar no servidor. O backend está ligado na porta 3001?');
+      }
+    }
+  </script>
+</body>
 
 </html>

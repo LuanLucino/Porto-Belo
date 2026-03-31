@@ -169,7 +169,18 @@
       </p>
     </next-route-announcer>
     <!-- ============================================================= -->
-
+<script>
+    fetch('http://localhost:3001/api/teste')
+        .then(response => response.json())
+        .then(data => {
+            console.log('Sucesso:', data.mensagem);
+            alert('Conectado ao Backend!');
+        })
+        .catch(err => {
+            console.error('Erro de conexão:', err);
+            alert('Ainda não achou o back. Verifique o terminal!');
+        });
+</script>
   </body>
   <!-- ================================================== -->
 
