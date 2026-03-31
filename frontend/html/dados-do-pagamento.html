@@ -1135,5 +1135,23 @@
 <script src="./dados do pagamento - porto belo_files/709-9ca30167771e2253.js.download"></script>
 <script src="./dados do pagamento - porto belo_files/296-ece7691bd959f271.js.download"></script>
 <script src="./dados do pagamento - porto belo_files/dados-pagamento-7946db6d4f00a78a.js.download"></script>
+
+<script>
+    async function finalizar() {
+        const forma = document.querySelector('select').value; // Ou o campo que tiveres
+
+        const response = await fetch('http://localhost:3001/api/finalizar-pagamento', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ formaPagamento: forma })
+        });
+
+        const data = await response.json();
+        if (data.sucesso) {
+            alert("Sucesso! Protocolo: " + data.protocolo);
+        }
+    }
+</script>
 </body>
+
 </html>

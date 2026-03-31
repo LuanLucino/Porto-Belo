@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Porto Belo - Portal de Pagamento de Fornecedores</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="https://portal.portobeloweb.com.br/favicon.png">
+
+    <link rel="stylesheet" href="../style/style.css">
+    <link rel="stylesheet" href="../style/f68765bab0b48352.css">
+    
+    <style>
+        /* Ajuste para garantir que a tabela ocupe o espaço correto */
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: center; }
+        .text-start { text-align: left; }
+        .bg-primary { background-color: #004a80; }
+        .bg-success { background-color: #28a745; }
+        .bg-warning { background-color: #ffc107; }
+        .opacity-60 { opacity: 0.6; cursor: not-allowed; }
+        .btn-active { opacity: 1 !important; cursor: pointer !important; }
+    </style>
+</head>
+
+<body>
+    <div id="__next">
+        <div id="root">
+            <div class="styles_container__lAhF8">
+                <div class="styles_wrapperLogged__vU1Lb">
+
+                    <header class="styles_container__2Y_S2">
+                        <header>
+                            <img alt="Logo porto belo" width="218" height="94" src="../img/logo.png" />
+                            <h1>PAGAMENTO DE FORNECEDOR</h1>
+                        </header>
+
+                        <section class="flex justify-between">
+                            <div>
+                                <p><strong>Razão Social: </strong><span id="razao-social-val"></span></p>
+                                <p><strong>Nome Fantasia: </strong><span id="nome-fantasia-val"></span></p>
+                            </div>
+                            <p><strong>CNPJ: </strong><span id="cnpj-val"></span></p>
+                        </section>
+                    </header>
+
+                    <main>
+                        <div class="styles_container__2UcOS">
+                            <div class="mt-4 mb-2 rounded border border-red-600 py-2">
+                                <p class="text-center text-xl font-bold">Contratos Vinculados</p>
+                            </div>
+
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th><input type="checkbox" id="master-checkbox"></th>
+                                        <th class="text-start">Nome da Obra</th>
+                                        <th>Nome do Contrato</th>
+                                        <th>Código do Contrato</th>
+                                        <th>Retenção Técnica</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabela-contratos-body">
+                                    </tbody>
+                            </table>
+
+                            <div class="ml-auto mt-auto flex max-w-lg space-x-4">
+                                <button onclick="window.history.back()" class="w-full rounded px-16 py-2 text-white transition-colors bg-warning text-2xl font-semibold hover:bg-warning-hover" type="button">
+                                    <p>Anterior</p>
+                                </button>
+                                <button id="btn-proxima" class="w-full rounded bg-success px-16 py-2 text-white transition-colors text-2xl font-semibold opacity-60" type="button" disabled>
+                                    <p>Próxima</p>
+                                </button>
+                            </div>
+                        </div>
+                    </main>
+
+                    <footer class="mt-auto flex items-center">
+                        <img alt="Logo porto belo" width="218" height="94" class="h-12 w-24" src="../img/logo.png" />
+                        <div class="ml-32 text-center text-xs opacity-60">
+                            <p>@2022-2022 Construindo Patrimônios</p>
+                            <p>Porto Belo Construções - CNPJ</p>
+                        </div>
+                    </footer>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 1. Recupera os dados que vieram da busca (Print 1)
+        // No mundo real, isso viria da sua API. Aqui simulamos o recebimento:
+        const payloadFornecedor = JSON.parse(localStorage.getItem('buscaFornecedor')) || {
+            razaoSocial: "FORNECEDOR EXEMPLO LTDA",
+            nomeFantasia: "EXEMPLO",
+            cnpj: "00.000.000/0001-00",
+            contratos: [
+                { obra: "EDIFICIO PORTO BELO", nome: "FORNECIMENTO DE CONCRETO", codigo: "CTR-102", retencao: "R$ 500,00" },
+                { obra: "RESIDENCIAL MARINA", nome: "SERVIÇOS DE PINTURA", codigo: "CTR-205", retencao: "R$ 0,00" },
+                { obra: "CONDOMINIO SOLARES", nome: "INSTALAÇÃO ELÉTRICA", codigo: "CTR-309", retencao: "R$ 1.200,00" }
+            ]
+        };
+
+        // 2. Preenche os dados do cabeçalho
+        document.getElementById('razao-social-val').textContent = payloadFornecedor.razaoSocial;
+        document.getElementById('nome-fantasia-val').textContent = payloadFornecedor.nomeFantasia;
+        document.getElementById('cnpj-val').textContent = payloadFornecedor.cnpj;
+
+        // 3. Renderiza os contratos na tabela
+        const tbody = document.getElementById('tabela-contratos-body');
+        const btnProxima = document.getElementById('btn-proxima');
+
+        function renderTable() {
+            tbody.innerHTML = '';
+            payloadFornecedor.contratos.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><input type="checkbox" class="contrato-item" data-index="${index}"></td>
+                    <td class="text-start">${item.obra}</td>
+                    <td>${item.nome}</td>
+                    <td>${item.codigo}</td>
+                    <td class="bg-primary text-white">${item.retencao}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        renderTable();
+
+        // 4. Lógica de Seleção e ativação do botão "Próxima"
+        document.addEventListener('change', (e) => {
+            if (e.target.classList.contains('contrato-item') || e.target.id === 'master-checkbox') {
+                
+                // Lógica de "Selecionar Todos"
+                if (e.target.id === 'master-checkbox') {
+                    const checks = document.querySelectorAll('.contrato-item');
+                    checks.forEach(c => c.checked = e.target.checked);
+                }
+
+                // Verifica se há algo selecionado para habilitar o botão
+                const selecionados = document.querySelectorAll('.contrato-item:checked');
+                if (selecionados.length > 0) {
+                    btnProxima.classList.add('btn-active');
+                    btnProxima.disabled = false;
+                } else {
+                    btnProxima.classList.remove('btn-active');
+                    btnProxima.disabled = true;
+                }
+            }
+        });
+
+        // 5. Salva apenas o que foi escolhido e vai para a tela de Dados da Nota (Print 3)
+        btnProxima.addEventListener('click', () => {
+            const checks = document.querySelectorAll('.contrato-item:checked');
+            const contratosEscolhidos = [];
+            
+            checks.forEach(check => {
+                const idx = check.getAttribute('data-index');
+                contratosEscolhidos.push(payloadFornecedor.contratos[idx]);
+            });
+
+            // Armazena a seleção para a próxima tela usar
+            localStorage.setItem('contratosSelecionados', JSON.stringify(contratosEscolhidos));
+            
+            // Redireciona (ajuste o nome do arquivo conforme sua pasta)
+            window.location.href = "dados-da-nota.html";
+        });
+    </script>
+</body>
+</html>
