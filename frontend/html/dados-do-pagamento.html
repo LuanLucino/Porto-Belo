@@ -464,8 +464,7 @@
                                 name="cpfCnpjFavorecido"
                                 autocomplete="off"
                                 minlength="10"
-                                disabled
-                                placeholder="Selecione o tipo de favorecido"
+                                placeholder="Digite o CPF ou CNPJ"
                               />
                             </div>
                           </div>
@@ -1027,7 +1026,7 @@
 
 <div class="styles_container__vlAK4">
   <label for="typeAccount">Tipo de Conta</label>
-  <select id="typeAccount" name="typeAccount" autocomplete="off" class="h-[41px]">
+  <select id="typeAccount" name="typeAccount" autocomplete="off" class="h-[35px]">
     <option value="" hidden>Selecione um tipo</option>
     <option value="Conta Corrente">Conta Corrente</option>
     <option value="Conta Poupança">Conta Poupança</option>
@@ -1054,12 +1053,14 @@
                                 <button
                                   class="w-full rounded px-16 py-2 text-white transition-colors bg-warning text-2xl font-semibold hover:bg-warning-hover"
                                   type="button"
+                                  onclick="window.history.back()"
                                 >
                                   <p>Anterior</p></button
                                 ><button
                                   class="w-full rounded bg-success px-16 py-2 text-white transition-colors hover:bg-success-hover text-2xl font-semibold"
-                                  type="submit"
+                                  type="button"
                                   form="formRef"
+                                  onclick="prosseguirParaFinalizar()"
                                 >
                                   <p>Próxima</p>
                                 </button>
@@ -1080,6 +1081,9 @@
   />
   <div class="ml-32 text-center text-xs opacity-60">
     <p>@2022-2022 Construindo Patrimônios</p>
+    <p>Porto Belo Construções - CNPJ 03.701.380/0002-60 Rua 4, 1400,
+                  Qd. 73 Lt. Área Total, SETOR CENTRAL, Goiânia, GO, BR CEP
+                  74015-010 </p>
     <p>Porto Belo Construções - CNPJ 03.701.380/0002-60 Rua 4, 1400,
                   Qd. 73 Lt. Área Total, SETOR CENTRAL, Goiânia, GO, BR CEP
                   74015-010 </p>
@@ -1126,19 +1130,22 @@
 </next-route-announcer>
 
 <script>
-    async function finalizar() {
-        const forma = document.querySelector('select').value; // Ou o campo que tiveres
+    function prosseguirParaFinalizar() {
+        // 1. Captura usando os IDs REAIS do seu HTML
+        const dadosPagamento = {
+            banco: document.getElementById('bankCode')?.value || '',
+            agencia: document.getElementById('agencia')?.value || '',
+            conta: document.getElementById('conta')?.value || '',
+            // O campo 'payment_method' é o select lá de cima
+            forma: document.getElementById('payment_method')?.value || 'boleto',
+            tipoConta: document.getElementById('typeAccount')?.value || ''
+        };
 
-        const response = await fetch('http://localhost:3001/api/finalizar-pagamento', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ formaPagamento: forma })
-        });
+        // 2. Salva no localStorage
+        localStorage.setItem('dadosPagamento', JSON.stringify(dadosPagamento));
 
-        const data = await response.json();
-        if (data.sucesso) {
-            alert("Sucesso! Protocolo: " + data.protocolo);
-        }
+        // 3. Redireciona
+        window.location.href = "./finalizar-pagamento.html";
     }
 </script>
 </body>
