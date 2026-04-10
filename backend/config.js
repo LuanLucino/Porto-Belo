@@ -6,7 +6,7 @@ async function fornecedorCadastrado(cnpj) {
   });
   const data =await response.json();
   console.log("Resposta do Sienge:", data);
-  return data; // Retorna true se o fornecedor existir, false caso contrário
+  return data.resultado; // Retorna true se o fornecedor existir, false caso contrário
 
 }
 
@@ -18,8 +18,9 @@ async function handleFornecedorRequest() {
   if (!handleCnpjFormato(cnpjDigitado)) {
     return;
   }
-  if (await !fornecedorCadastrado(cnpjDigitado)) {
+  if (!(await fornecedorCadastrado(cnpjDigitado))) {
     alert("Fornecedor não cadastrado, Por gentileza entrar em contato com o suporte.");
+    return; 
   }
   await enviarCnpj(cnpjDigitado);
 } 
@@ -111,6 +112,14 @@ async function enviarCnpj(cnpj) {
 
 const tbody = document.getElementById("tabela-contratos-body");
 const btnProxima = document.getElementById("btn-proxima");
+
+
+// Inicialização segura
+const payloadFornecedor = {
+  contratos: []
+};
+
+
 
 function renderTable() {
   tbody.innerHTML = "";
