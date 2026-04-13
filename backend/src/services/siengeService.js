@@ -5,10 +5,7 @@
 const axios = require('axios');
 const { env } = require('../config/env');
 
-
-// This gateway is responsible for making asynchronous calls to the Sienge API
-// This gateway instantiates an async client that can be used with the gateway methods
-
+// Gateway real — fala com a API HTTP do Sienge.
 class AsyncSiengeGateway {
   constructor(settings) {
     this.client = axios.create({
@@ -21,41 +18,78 @@ class AsyncSiengeGateway {
     });
   }
 
-  // This function returns the supplier data
   async getSupplier(cnpj) {
     try {
-      const response = await this.client.get("/creditors", {
-        params: { cnpj },
-      });
-
-      return response.data.results && response.data.results.length > 0 ? response.data.results[0] : null;
+      const response = await this.client.get('/creditors', { params: { cnpj } });
+      return response.data.results && response.data.results.length > 0
+        ? response.data.results[0]
+        : null;
     } catch (error) {
-      console.error("Error fetching supplier data from Sienge:", error);
-      throw new Error("Failed to fetch supplier data from Sienge");
+      console.error('Error fetching supplier data from Sienge:', error.message);
+      throw new Error('Failed to fetch supplier data from Sienge');
     }
   }
 
-  async getContracts(cnpj) {
+  async getContracts() {
     try {
-      const response = await this.client.get("/contracts", {
-        params: { cnpj },
-      });
-
-      return typeof response.data.results === 'object' ? response.data.results : [];
+      const response = await this.client.get('/supply-contracts');
+      return Array.isArray(response.data.results) ? response.data.results : [];
     } catch (error) {
-      console.error("Error fetching supplier contracts from Sienge:", error);
-      throw new Error("Failed to fetch supplier contracts from Sienge");
+      console.error('Error fetching supplier contracts from Sienge:', error.message);
+      throw new Error('Failed to fetch supplier contracts from Sienge');
     }
   }
 }
 
-// Instanciate the gateway with settings from env
-const siengeGateway = new AsyncSiengeGateway({
-  baseUrl: env.sienge.baseUrl,
-  sienge_user: env.sienge.user,
-  sienge_password: env.sienge.password,
-  timeoutMs: env.sienge.timeoutMs,
-});
+// Gateway mock — mesma interface, dados fake.
+// Útil em dev sem credenciais, em testes, e quando o Sienge está fora.
+class MockSiengeGateway {
+  async getSupplier(cnpj) {
+    return {
+      id: 1,
+      cnpj,
+      tradingName: 'EXEMPLO',
+      name: 'FORNECEDOR EXEMPLO LTDA',
+      stateRegistrationNumber: '123456789',
+      personType: 'LEGAL',
+    };
+  }
 
+  async getContracts() {
+    return [
+      {
+        id: 102,
+        code: 'CTR-102',
+        contractName: 'FORNECIMENTO DE CONCRETO',
+        constructionName: 'EDIFICIO PORTO BELO',
+        technicalRetention: 'R$ 500,00',
+      },
+      {
+        id: 205,
+        code: 'CTR-205',
+        contractName: 'SERVIÇOS DE PINTURA',
+        constructionName: 'RESIDENCIAL MARINA',
+        technicalRetention: 'R$ 0,00',
+      },
+      {
+        id: 309,
+        code: 'CTR-309',
+        contractName: 'INSTALAÇÃO ELÉTRICA',
+        constructionName: 'CONDOMINIO SOLARES',
+        technicalRetention: 'R$ 1.200,00',
+      },
+    ];
+  }
+}
 
-module.exports = { siengeGateway };
+// Escolhe a implementação no boot. O resto do código não sabe qual está rodando.
+const siengeGateway = env.sienge.mock
+  ? new MockSiengeGateway()
+  : new AsyncSiengeGateway({
+      baseUrl: env.sienge.baseUrl,
+      sienge_user: env.sienge.user,
+      sienge_password: env.sienge.password,
+      timeoutMs: env.sienge.timeoutMs,
+    });
+
+module.exports = { siengeGateway, AsyncSiengeGateway, MockSiengeGateway };
