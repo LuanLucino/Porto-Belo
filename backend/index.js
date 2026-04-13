@@ -6,40 +6,43 @@ const express = require('express');
 const cors = require('cors');
 
 const { env } = require('./src/config/env');
-const fornecedorRoutes = require('./src/routes/fornecedorRoutes');
+const supplierRoutes = require('./src/routes/supplierRoutes');
 
-const app = express();
 
-// --- CORS: apenas origens do .env podem acessar ---
-const corsOptions = {
-  origin: (origin, callback) => {
-    // Requests sem origem (ex: curl, mesmo host) sempre passam.
-    if (!origin) return callback(null, true);
-    if (env.frontendOrigins.includes('*') || env.frontendOrigins.includes(origin)) {
-      return callback(null, true);
+function getApplication() {
+  let app = express();
+
+  const corsOrigin = {
+    origin: (origin, callback) => {
+      // Requests sem origem (ex: curl, mesmo host)
+      if (!origin) return callback(null, true);
+      if (env.frontendOrigins.includes('*') || env.frontendOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error(`Origem não permitida pelo CORS: ${origin}`));
     }
-    return callback(new Error(`Origem não permitida pelo CORS: ${origin}`));
-  },
-};
-app.use(cors(corsOptions));
-app.use(express.json());
+  }
 
-// --- Rotas ---
-app.get('/api/health', (_req, res) => {
-  res.json({
-    status: 'Online',
-    timestamp: new Date().toISOString(),
-    mensagem: 'Backend Porto Belo operando corretamente',
+  app.use(cors(corsOrigin));
+  app.use(express.json());
+  app.get('/api/health', (_req, res) => {
+    res.json({
+      status: 'Online',
+      timestamp: new Date().toISOString(),
+      mensagem: 'Backend Porto Belo operando corretamente',
+    });
   });
-});
 
-app.use('/api', fornecedorRoutes);
+  app.use('/api', supplierRoutes);
 
-// --- Handler global de erros (sempre por último) ---
-app.use((err, _req, res, _next) => {
-  console.error('[ERRO]', err.message);
-  res.status(500).json({ erro: 'Erro interno no servidor.' });
-});
+  app.use((err, _req, res, _next) => {
+    console.error('[ERRO]', err.message);
+    res.status(500).json({ erro: 'Erro interno no servidor.' });
+  });
+  return app;
+}
+
+const app = getApplication();
 
 app.listen(env.port, () => {
   console.log('==========================================');

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const supplierController = require('../controllers/fornecedorController');
+const supplierController = require('../controllers/supplierControllers');
 
 // Route to get the supplier data
 router.get("/get-supplier", supplierController._getSupplier);
