@@ -1,3 +1,5 @@
+
+
 async function fornecedorCadastrado(cnpj) {
   const response = await fetch(`${BASE_SIENGE_URL}/creditors?cnpj=${cnpj}`, {
     method: "GET",
