@@ -67,40 +67,23 @@
     </div>
   </div>
 
+  <script src="../js/config.js"></script>
+  <script src="../js/api.js"></script>
   <script>
     async function enviarCnpj() {
-      // Pega o valor pelo ID que já está no seu input
-      const cnpjInput = document.getElementById('cnpj');
-      const cnpjDigitado = cnpjInput.value;
-
+      const cnpjDigitado = document.getElementById('cnpj').value;
       if (!cnpjDigitado) {
-        alert("Por favor, digite o CNPJ.");
+        alert('Por favor, digite o CNPJ.');
         return;
       }
 
       try {
-        const response = await fetch('http://localhost:3001/api/consultar-cnpj', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            cnpj: cnpjDigitado
-          })
-        });
-
-        const data = await response.json();
-
-        if (data.sucesso) {
-          console.log('Fornecedor encontrado:', data.fornecedor);
-          // Redireciona para a próxima etapa
-          window.location.href = "./escolher-contrato.html";
-        } else {
-          alert('Erro: ' + (data.erro || "CNPJ não encontrado"));
-        }
+        const data = await window.api.post('/consultar-cnpj', { cnpj: cnpjDigitado });
+        localStorage.setItem('buscaFornecedor', JSON.stringify(data.fornecedor));
+        window.location.href = './escolher-contrato.html';
       } catch (error) {
-        console.error('Erro ao conectar no back:', error);
-        alert('Erro ao conectar no servidor. O backend está ligado na porta 3001?');
+        console.error('Erro ao consultar CNPJ:', error);
+        alert(error.message);
       }
     }
   </script>

@@ -1,14 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const fornecedorController = require('../controllers/fornecedorController');
+const supplierController = require('../controllers/fornecedorController');
 
-// Rota da Página 1
-router.post('/consultar-cnpj', fornecedorController.verificarCnpj);
+// Route to get the supplier data
+router.get("/get-supplier", supplierController._getSupplier);
 
-// Rota da Página 2
-router.post('/salvar-nota', fornecedorController.salvarDadosNota);
+// Route to get the contracts
+router.get("/get-contracts", supplierController._getContracts);
 
-// Rota da Página 3 (Final)
-router.post('/finalizar-pagamento', fornecedorController.finalizarPagamento);
 
 module.exports = router;

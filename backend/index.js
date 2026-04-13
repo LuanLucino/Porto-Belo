@@ -1,46 +1,51 @@
-// Carrega as variáveis do arquivo .env (TOKEN, PORTA, etc)
-require('dotenv').config();
+// Ponto de entrada do servidor.
+// Padrão em camadas: routes -> controllers -> services.
+// Variáveis sensíveis vêm de .env (via src/config/env.js).
 
 const express = require('express');
 const cors = require('cors');
 
-// Importa as rotas que vamos criar (fornecedor, notas, etc)
+const { env } = require('./src/config/env');
 const fornecedorRoutes = require('./src/routes/fornecedorRoutes');
 
 const app = express();
 
-// --- MIDDLEWARES ---
-
-// Permite que o teu HTML (localhost) aceda a este servidor
-app.use(cors());
-
-// Faz o Express conseguir ler o corpo das requisições em JSON
+// --- CORS: apenas origens do .env podem acessar ---
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Requests sem origem (ex: curl, mesmo host) sempre passam.
+    if (!origin) return callback(null, true);
+    if (env.frontendOrigins.includes('*') || env.frontendOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error(`Origem não permitida pelo CORS: ${origin}`));
+  },
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 
-// --- ROTAS ---
-
-// Rota de teste para verificar se o servidor está online
-app.get('/api/health', (req, res) => {
-    res.json({ 
-        status: "Online", 
-        timestamp: new Date().toISOString(),
-        mensagem: "Backend Porto Belo operando corretamente" 
-    });
+// --- Rotas ---
+app.get('/api/health', (_req, res) => {
+  res.json({
+    status: 'Online',
+    timestamp: new Date().toISOString(),
+    mensagem: 'Backend Porto Belo operando corretamente',
+  });
 });
 
-// Agrupa todas as rotas de fornecedores sob o prefixo /api
-// Exemplo: POST http://localhost:3001/api/consultar-cnpj
 app.use('/api', fornecedorRoutes);
 
-// --- INICIALIZAÇÃO ---
+// --- Handler global de erros (sempre por último) ---
+app.use((err, _req, res, _next) => {
+  console.error('[ERRO]', err.message);
+  res.status(500).json({ erro: 'Erro interno no servidor.' });
+});
 
-// Tenta usar a porta do .env ou a 3001 por padrão
-const PORT = process.env.PORT || 3001;
-
-app.listen(PORT, () => {
-    console.log('==========================================');
-    console.log(`🚀 Servidor Porto Belo iniciado com sucesso!`);
-    console.log(`📍 Endereço: http://localhost:${PORT}`);
-    console.log(`🛠️  Pressione CTRL+C para parar`);
-    console.log('==========================================');
+app.listen(env.port, () => {
+  console.log('==========================================');
+  console.log(`Servidor Porto Belo iniciado (${env.nodeEnv})`);
+  console.log(`Endereço:  http://localhost:${env.port}`);
+  console.log(`Sienge:    ${env.sienge.mock ? 'MOCK' : env.sienge.baseUrl}`);
+  console.log(`CORS:      ${env.frontendOrigins.join(', ')}`);
+  console.log('==========================================');
 });
