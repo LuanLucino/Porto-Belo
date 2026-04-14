@@ -107,6 +107,17 @@ class AsyncSiengeGateway {
       throw mapped;
     }
   }
+
+  async getSalesContracts() {
+    try {
+      const response = await this.client.get('/sales-contracts/')
+      return response.data
+    } catch (err) {
+      const mapped = mapSiengeError(err, 'Falha ao consultar contratos de venda no Sienge.');
+      if (mapped === null) return [];
+      throw mapped;
+    }
+  }
 }
 
 // ---------- Gateway mock ----------
