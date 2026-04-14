@@ -2,42 +2,27 @@
 // Regra: controller NUNCA chama axios nem API externa direto — passa pelo service.
 
 const { siengeGateway } = require('../services/siengeService');
+const { validateCNPJ } = require('../utils/sienge');
 
 exports._isSupplierRegistered = async (req, res, next) => {
   try {
-    const { cnpj } = req.query;
-
-    if (!cnpj) {
-      return res.status(400).json({ error: 'CNPJ é obrigatório.' });
-    }
-    if (typeof cnpj !== 'string') {
-      return res.status(400).json({ error: 'CNPJ deve ser uma string.' });
-    }
-    if (cnpj.length !== 14) {
-      return res.status(400).json({ error: 'CNPJ deve conter 14 dígitos.' });
+    const { value: cnpj, error } = validateCNPJ(req.query.cnpj);
+    if (error) {
+      return res.status(400).json({ error });
     }
 
     const supplierData = await siengeGateway.getSupplier(cnpj);
-    const isRegistered = supplierData.length > 0 ?? false;
-    return res.json({ isRegistered });
-  }
-  catch (err) {
+    return res.json({ isRegistered: supplierData !== null });
+  } catch (err) {
     return next(err);
   }
 };
 
 exports._getSupplier = async (req, res, next) => {
   try {
-    const { cnpj } = req.query;
-
-    if (!cnpj) {
-      return res.status(400).json({ error: 'CNPJ é obrigatório.' });
-    }
-    if (typeof cnpj !== 'string') {
-      return res.status(400).json({ error: 'CNPJ deve ser uma string.' });
-    }
-    if (cnpj.length !== 14) {
-      return res.status(400).json({ error: 'CNPJ deve conter 14 dígitos.' });
+    const { value: cnpj, error } = validateCNPJ(req.query.cnpj);
+    if (error) {
+      return res.status(400).json({ error });
     }
 
     const supplierData = await siengeGateway.getSupplier(cnpj);

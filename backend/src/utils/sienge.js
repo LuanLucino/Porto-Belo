@@ -1,45 +1,37 @@
-// Finish this file with the CNPJ validation functions and export them later
 
-function formatCNPJ(cnpj) {
-    const cleanedCNPJ = cnpj.replace(/\D/g, '');
-    return cleanedCNPJ.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5');
+function calculateCheckDigit(numbers) {
+    let sum = 0;
+    let pos = numbers.length - 7;
+    for (let i = numbers.length; i >= 1; i--) {
+        sum += parseInt(numbers.charAt(numbers.length - i), 10) * pos--;
+        if (pos < 2) pos = 9;
+    }
+    return sum % 11 < 2 ? 0 : 11 - (sum % 11);
 }
 
+function hasValidCheckDigits(cnpj) {
+    // Rejeita CNPJs com todos os dígitos iguais (ex: 00000000000000) — passam no check mas são inválidos.
+    if (/^(\d)\1{13}$/.test(cnpj)) return false;
 
-function cnpjErrorHandler(cnpj) {
-    const cnpjLength = cnpj.length;
-    const cleanedCNPJ = formatCNPJ(cnpj);
-    if (cnpjLength === 0) {
-        return 'CNPJ é obrigatório.';
-    }
-    if (typeof cnpj !== 'string') {
-        return 'CNPJ deve ser uma string.';
-    }
-    if (cnpjLength !== 14) {
-        return 'CNPJ deve conter 14 dígitos.';
-    }
-    return null; // No error
-
+    const first = calculateCheckDigit(cnpj.substring(0, 12));
+    const second = calculateCheckDigit(cnpj.substring(0, 12) + first);
+    return cnpj.endsWith(`${first}${second}`);
 }
 
-function isValidCNPJ(cnpj) {
-    // This function validates the CNPJ calculation 
-    const cnpjNumbers = cnpj.replace(/\D/g, '');
-    if (cnpjNumbers.length !== 14) return false;
+function validateCNPJ(raw) {
+    const cnpj = String(raw ?? '').replace(/\D/g, '');
 
-    const calculateCheckDigit = (numbers) => {
-        let sum = 0;
-        let pos = numbers.length - 7;
-        for (let i = numbers.length; i >= 1; i--) {
-            sum += parseInt(numbers.charAt(numbers.length - i)) * pos--;
-            if (pos < 2) pos = 9;
-        }
-        const result = sum % 11 < 2 ? 0 : 11 - (sum % 11);
-        return result;
-    };
+    if (!cnpj) {
+        return { value: null, error: 'CNPJ é obrigatório.' };
+    }
+    if (cnpj.length !== 14) {
+        return { value: null, error: 'CNPJ deve conter 14 dígitos.' };
+    }
+    if (!hasValidCheckDigits(cnpj)) {
+        return { value: null, error: 'CNPJ inválido.' };
+    }
 
-    const firstCheckDigit = calculateCheckDigit(cnpjNumbers.substring(0, 12));
-    const secondCheckDigit = calculateCheckDigit(cnpjNumbers.substring(0, 12) + firstCheckDigit);
-
-    return cnpjNumbers.endsWith(`${firstCheckDigit}${secondCheckDigit}`);
+    return { value: cnpj, error: null };
 }
+
+module.exports = { validateCNPJ };
