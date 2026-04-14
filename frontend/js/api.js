@@ -22,7 +22,8 @@
 
     const data = await response.json().catch(() => ({}));
     if (!response.ok) {
-      throw new Error(data.erro || `Erro HTTP ${response.status}`);
+      const message = data.error || data.erro || `Erro HTTP ${response.status}`;
+      throw new Error(message);
     }
     return data;
   }
