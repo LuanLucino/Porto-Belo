@@ -1,30 +1,43 @@
+// Controllers dos endpoints de fornecedor.
+// Validação de CNPJ (check digit, formato) é responsabilidade do frontend.
+// Aqui garantimos presença do parâmetro e propagamos os erros do Sienge de forma coerente.
+
 const { siengeGateway } = require('../services/siengeService');
-const { validateCNPJ } = require('../utils/sienge');
 
 exports._isSupplierRegistered = async (req, res, next) => {
   try {
-    const { value: cnpj, error } = validateCNPJ(req.query.cnpj);
-    if (error) {
-      return res.status(400).json({ error });
+    const cnpj = req.query.cnpj;
+    if (!cnpj) {
+      return res.status(400).json({ error: 'cnpj é obrigatório.' });
     }
 
-    const supplierData = await siengeGateway.getSupplier(cnpj);
-    return res.json({ isRegistered: supplierData !== null });
+    const supplier = await siengeGateway.getSupplier(cnpj);
+    return res.json({ isRegistered: supplier !== null });
   } catch (err) {
+    // "CNPJ mal formado" pro Sienge = "não está registrado" pra nós.
+    // (endpoint binário: ou é, ou não é.)
+    if (err.statusCode === 400) {
+      return res.json({ isRegistered: false });
+    }
     return next(err);
   }
 };
 
 exports._getSupplier = async (req, res, next) => {
   try {
-    const { value: cnpj, error } = validateCNPJ(req.query.cnpj);
-    if (error) {
-      return res.status(400).json({ error });
+    const cnpj = req.query.cnpj;
+    if (!cnpj) {
+      return res.status(400).json({ error: 'cnpj é obrigatório.' });
     }
 
     const supplierData = await siengeGateway.getSupplier(cnpj);
+    if (!supplierData) {
+      return res.status(404).json({ error: 'Fornecedor não encontrado no Sienge.' });
+    }
+
     return res.json({ supplierData });
   } catch (err) {
+    // Propaga 400 do Sienge (CNPJ mal formado) com a mensagem útil.
     return next(err);
   }
 };

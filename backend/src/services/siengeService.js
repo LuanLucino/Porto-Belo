@@ -1,39 +1,99 @@
-// ONly place where the external Sienge API is called
+// ÚNICO lugar que fala com a API externa do Sienge.
+// Responsabilidades:
+//  - Fazer chamadas HTTP.
+//  - TRADUZIR a resposta real do Sienge para o schema estável usado pelo frontend.
+//  - Tratar "não encontrado" (404) como null/lista vazia — não como erro.
+// O resto do código (controllers, frontend) só conhece o schema traduzido abaixo.
+
+// Schema estável (o que o frontend consome):
+//   Supplier  -> { id, cnpj, name, tradingName, stateRegistrationNumber, personType }
+//   Contract  -> { id, code, contractName, constructionName, technicalRetention }
+
 const axios = require('axios');
 const { env } = require('../config/env');
 
-// Gateway real — fala com a API HTTP do Sienge.
+// HTTPError: carrega statusCode pro errorHandler respeitar.
+class HTTPError extends Error {
+  constructor(statusCode, message) {
+    super(message);
+    this.statusCode = statusCode;
+  }
+}
+
+// Traduz erros do axios (Sienge) em HTTPError com semântica clara.
+//   - 400  -> HTTPError(400, <mensagem do Sienge>)  — cliente mandou lixo
+//   - 401/403 -> HTTPError(502, ...)                — config/credencial nossa
+//   - 404  -> retorna null (deixa o chamador decidir o que fazer)
+//   - 5xx/timeout -> HTTPError(502, ...)            — Sienge fora
+function mapSiengeError(err, fallbackMessage) {
+  const status = err?.response?.status;
+  const siengeMsg = err?.response?.data?.developerMessage
+    || err?.response?.data?.clientMessage;
+
+  if (status === 404) return null;
+  if (status === 400) {
+    return new HTTPError(400, siengeMsg || 'Requisição inválida.');
+  }
+  console.error('[Sienge]', err.message, siengeMsg || '');
+  return new HTTPError(502, fallbackMessage);
+}
+
+// ---------- Adapters: Sienge raw -> schema do frontend ----------
+
+function adaptSupplier(raw) {
+  if (!raw) return null;
+  return {
+    id: raw.id ?? null,
+    cnpj: raw.cnpj ?? null,
+    name: raw.name ?? raw.corporateName ?? '',
+    tradingName: raw.tradingName ?? raw.fantasyName ?? '',
+    stateRegistrationNumber: raw.stateRegistrationNumber ?? '',
+    personType: raw.personType ?? '',
+  };
+}
+
+function adaptContract(raw) {
+  return {
+    id: raw.id ?? raw.contractNumber ?? null,
+    code: raw.contractNumber ?? raw.code ?? '',
+    contractName: raw.object ?? raw.contractName ?? '',
+    constructionName: raw.buildings?.[0]?.name ?? raw.constructionName ?? '',
+    technicalRetention: raw.technicalRetention ?? '',
+  };
+}
+
+// ---------- Gateway real ----------
+
 class AsyncSiengeGateway {
   constructor(settings) {
     this.client = axios.create({
       baseURL: settings.baseUrl,
       timeout: settings.timeoutMs,
-      auth: {
-        username: settings.sienge_user,
-        password: settings.sienge_password,
-      },
+      auth: { username: settings.sienge_user, password: settings.sienge_password },
     });
   }
 
   async getSupplier(cnpj) {
     try {
       const response = await this.client.get('/creditors', { params: { cnpj } });
-      return response.data.results;
-    } catch (error) {
-      console.error('Error fetching supplier data from Sienge:', error.message);
-      throw new Error('Failed to fetch supplier data from Sienge');
+      const first = response.data?.results?.[0] ?? null;
+      return adaptSupplier(first);
+    } catch (err) {
+      const mapped = mapSiengeError(err, 'Falha ao consultar fornecedor no Sienge.');
+      if (mapped === null) return null;
+      throw mapped;
     }
   }
 
   async getContracts() {
     try {
       const response = await this.client.get('/supply-contracts/all');
-      return response.data.results && response.data.results.length > 0
-        ? response.data.results
-        : [];
-    } catch (error) {
-      console.error('Error fetching supplier contracts from Sienge:', error.message);
-      throw new Error('Failed to fetch supplier contracts from Sienge');
+      const list = Array.isArray(response.data?.results) ? response.data.results : [];
+      return list.map(adaptContract);
+    } catch (err) {
+      const mapped = mapSiengeError(err, 'Falha ao consultar contratos no Sienge.');
+      if (mapped === null) return [];
+      throw mapped;
     }
   }
 
@@ -41,22 +101,23 @@ class AsyncSiengeGateway {
     try {
       const response = await this.client.post('/bills', invoice);
       return response.data;
-    } catch (error) {
-      console.error('Error saving invoice on Sienge:', error.message);
-      throw new Error('Failed to save invoice on Sienge');
+    } catch (err) {
+      const mapped = mapSiengeError(err, 'Falha ao salvar nota no Sienge.');
+      if (mapped === null) throw new HTTPError(404, 'Recurso não encontrado no Sienge.');
+      throw mapped;
     }
   }
 }
 
-// Gateway mock — mesma interface, dados fake.
-// Útil em dev sem credenciais, em testes, e quando o Sienge está fora.
+// ---------- Gateway mock ----------
+
 class MockSiengeGateway {
   async getSupplier(cnpj) {
     return {
       id: 1,
       cnpj,
-      tradingName: 'EXEMPLO',
       name: 'FORNECEDOR EXEMPLO LTDA',
+      tradingName: 'EXEMPLO',
       stateRegistrationNumber: '123456789',
       personType: 'LEGAL',
     };
@@ -64,27 +125,9 @@ class MockSiengeGateway {
 
   async getContracts() {
     return [
-      {
-        id: 102,
-        code: 'CTR-102',
-        contractName: 'FORNECIMENTO DE CONCRETO',
-        constructionName: 'EDIFICIO PORTO BELO',
-        technicalRetention: 'R$ 500,00',
-      },
-      {
-        id: 205,
-        code: 'CTR-205',
-        contractName: 'SERVIÇOS DE PINTURA',
-        constructionName: 'RESIDENCIAL MARINA',
-        technicalRetention: 'R$ 0,00',
-      },
-      {
-        id: 309,
-        code: 'CTR-309',
-        contractName: 'INSTALAÇÃO ELÉTRICA',
-        constructionName: 'CONDOMINIO SOLARES',
-        technicalRetention: 'R$ 1.200,00',
-      },
+      { id: 102, code: 'CTR-102', contractName: 'FORNECIMENTO DE CONCRETO', constructionName: 'EDIFICIO PORTO BELO', technicalRetention: 'R$ 500,00' },
+      { id: 205, code: 'CTR-205', contractName: 'SERVIÇOS DE PINTURA', constructionName: 'RESIDENCIAL MARINA', technicalRetention: 'R$ 0,00' },
+      { id: 309, code: 'CTR-309', contractName: 'INSTALAÇÃO ELÉTRICA', constructionName: 'CONDOMINIO SOLARES', technicalRetention: 'R$ 1.200,00' },
     ];
   }
 
@@ -98,7 +141,8 @@ class MockSiengeGateway {
   }
 }
 
-// Escolhe a implementação no boot. O resto do código não sabe qual está rodando.
+// ---------- Boot ----------
+
 const siengeGateway = env.sienge.mock
   ? new MockSiengeGateway()
   : new AsyncSiengeGateway({
@@ -108,4 +152,4 @@ const siengeGateway = env.sienge.mock
     timeoutMs: env.sienge.timeoutMs,
   });
 
-module.exports = { siengeGateway, AsyncSiengeGateway, MockSiengeGateway };
+module.exports = { siengeGateway, AsyncSiengeGateway, MockSiengeGateway, HTTPError };

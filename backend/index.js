@@ -35,8 +35,9 @@ function registerApplicationHealth(app) {
 
 function errorHandler() {
   return (err, _req, res, _next) => {
-    console.error('[ERRO]', err.message);
-    res.status(500).json({ erro: 'Erro interno no servidor.' });
+    const status = err.statusCode ?? 500;
+    console.error(`[ERRO ${status}]`, err.message);
+    res.status(status).json({ error: err.message || 'Erro interno no servidor.' });
   };
 }
 

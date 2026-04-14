@@ -2,7 +2,10 @@
 // Qualquer variável de ambiente deve ser lida AQUI e exportada tipada.
 // No resto do código use: const { env } = require('./config/env');
 
-require('dotenv').config();
+const path = require('path');
+
+// Aponta o dotenv pro .env do backend, independente de onde o node foi invocado.
+require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') });
 
 function required(name) {
   const value = process.env[name];
