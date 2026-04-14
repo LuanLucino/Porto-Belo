@@ -101,4 +101,4 @@ const siengeGateway = env.sienge.mock
     timeoutMs: env.sienge.timeoutMs,
   });
 
-module.exports = { siengeGateway, AsyncSiengeGateway, MockSiengeGateway, HTTPError };
+module.exports = { siengeGateway, AsyncSiengeGateway, MockSiengeGateway };
