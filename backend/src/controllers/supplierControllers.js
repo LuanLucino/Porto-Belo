@@ -1,4 +1,3 @@
-
 const { siengeGateway } = require('../services/siengeService');
 const { validateCNPJ } = require('../utils/sienge');
 
