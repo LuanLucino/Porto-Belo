@@ -11,63 +11,8 @@
 
 const axios = require('axios');
 const { env } = require('../config/env');
+const { SiengeUtils } = require('../utils/sienge');
 
-// HTTPError: carrega statusCode pro errorHandler respeitar.
-class HTTPError extends Error {
-  constructor(statusCode, message) {
-    super(message);
-    this.statusCode = statusCode;
-  }
-}
-
-// Traduz erros do axios (Sienge) em HTTPError com semântica clara.
-//   - 400  -> HTTPError(400, <mensagem do Sienge>)  — cliente mandou lixo
-//   - 401/403 -> HTTPError(502, ...)                — config/credencial nossa
-//   - 404  -> retorna null (deixa o chamador decidir o que fazer)
-//   - 5xx/timeout -> HTTPError(502, ...)            — Sienge fora
-function mapSiengeError(err, fallbackMessage) {
-  const status = err?.response?.status;
-  const siengeMsg = err?.response?.data?.developerMessage
-    || err?.response?.data?.clientMessage;
-
-  if (status === 404) return null;
-  if (status === 400) {
-    return new HTTPError(400, siengeMsg || 'Requisição inválida.');
-  }
-  console.error('[Sienge]', err.message, siengeMsg || '');
-  return new HTTPError(502, fallbackMessage);
-}
-
-// ---------- Adapters: Sienge raw -> schema do frontend ----------
-
-function adaptSupplier(raw) {
-  if (!raw) return null;
-  return {
-    id: raw.id ?? null,
-    cnpj: raw.cnpj ?? null,
-    name: raw.name ?? raw.corporateName ?? '',
-    tradeName: raw.tradeName ?? raw.fantasyName ?? '',
-    stateRegistrationNumber: raw.stateRegistrationNumber ?? '',
-    personType: raw.personType ?? '',
-  };
-}
-
-function adaptContract(raw) {
-  return {
-    id: raw.id ?? raw.contractNumber ?? null,
-  };
-}
-
-function adaptCompany(raw) {
-  const dataFromSienge = companies.results
-  const formattedData = dataFromSienge.map(company => ({
-    id: company.id,
-    name: company.name,
-    cnpj: company.cnpj,
-    tradeName: company.tradeName,
-  }));
-  return formattedData;
-}
 // ---------- Gateway real ----------
 
 class AsyncSiengeGateway {
@@ -83,9 +28,9 @@ class AsyncSiengeGateway {
     try {
       const response = await this.client.get('/creditors', { params: { cnpj } });
       const first = response.data?.results?.[0] ?? null;
-      return adaptSupplier(first);
+      return SiengeUtils.adaptSupplier(first);
     } catch (err) {
-      const mapped = mapSiengeError(err, 'Falha ao consultar fornecedor no Sienge.');
+      const mapped = SiengeUtils.mapSiengeError(err, 'Falha ao consultar fornecedor no Sienge.');
       if (mapped === null) return null;
       throw mapped;
     }
@@ -95,9 +40,9 @@ class AsyncSiengeGateway {
     try {
       const response = await this.client.get('/supply-contracts/all', { params: { companyId } });
       const list = Array.isArray(response.data?.results) ? response.data.results : [];
-      return list.map(adaptContract);
+      return list.map(SiengeUtils.adaptContract);
     } catch (err) {
-      const mapped = mapSiengeError(err, 'Falha ao consultar contratos no Sienge.');
+      const mapped = SiengeUtils.mapSiengeError(err, 'Falha ao consultar contratos no Sienge.');
       if (mapped === null) return [];
       throw mapped;
     }
@@ -107,9 +52,9 @@ class AsyncSiengeGateway {
     try {
       const response = await this.client.get('/companies')
       const list = Array.isArray(response.data?.results) ? response.data.results : [];
-      return list.map(adaptCompany);
+      return list.map(SiengeUtils.adaptCompany);
     } catch (err) {
-      const mapped = mapSiengeError(err, 'Falha ao consultar empresas no Sienge.');
+      const mapped = SiengeUtils.mapSiengeError(err, 'Falha ao consultar empresas no Sienge.');
       if (mapped === null) return [];
       throw mapped;
     }
@@ -145,8 +90,6 @@ class MockSiengeGateway {
     ];
   }
 }
-
-
 // ---------- Boot ----------
 
 const siengeGateway = env.sienge.mock
