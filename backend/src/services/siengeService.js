@@ -91,35 +91,13 @@ class AsyncSiengeGateway {
     }
   }
 
-  async getContracts() {
+  async getContractsByCompanyId(companyId) {
     try {
-      const response = await this.client.get('/supply-contracts/all');
+      const response = await this.client.get('/supply-contracts/all', { params: { companyId } });
       const list = Array.isArray(response.data?.results) ? response.data.results : [];
       return list.map(adaptContract);
     } catch (err) {
       const mapped = mapSiengeError(err, 'Falha ao consultar contratos no Sienge.');
-      if (mapped === null) return [];
-      throw mapped;
-    }
-  }
-
-  async saveInvoice(invoice) {
-    try {
-      const response = await this.client.post('/bills', invoice);
-      return response.data;
-    } catch (err) {
-      const mapped = mapSiengeError(err, 'Falha ao salvar nota no Sienge.');
-      if (mapped === null) throw new HTTPError(404, 'Recurso não encontrado no Sienge.');
-      throw mapped;
-    }
-  }
-
-  async getSalesContracts() {
-    try {
-      const response = await this.client.get('/sales-contracts/')
-      return response.data
-    } catch (err) {
-      const mapped = mapSiengeError(err, 'Falha ao consultar contratos de venda no Sienge.');
       if (mapped === null) return [];
       throw mapped;
     }
@@ -137,7 +115,6 @@ class AsyncSiengeGateway {
     }
   }
 }
-
 // ---------- Gateway mock ----------
 
 class MockSiengeGateway {
@@ -152,7 +129,7 @@ class MockSiengeGateway {
     };
   }
 
-  async getContracts() {
+  async getContractsByCompanyId(companyId) {
     return [
       { id: 102, code: 'CTR-102', contractName: 'FORNECIMENTO DE CONCRETO', constructionName: 'EDIFICIO PORTO BELO', technicalRetention: 'R$ 500,00' },
       { id: 205, code: 'CTR-205', contractName: 'SERVIÇOS DE PINTURA', constructionName: 'RESIDENCIAL MARINA', technicalRetention: 'R$ 0,00' },
@@ -160,15 +137,15 @@ class MockSiengeGateway {
     ];
   }
 
-  async saveInvoice(invoice) {
-    return {
-      id: Math.floor(Math.random() * 100000),
-      status: 'RECEIVED',
-      receivedAt: new Date().toISOString(),
-      invoice,
-    };
+  async getCompanies() {
+    return [
+      { id: 1, name: 'CONSTRUTORA PORTO BELO LTDA', cnpj: '12.345.678/0001-90', tradeName: 'PORTO BELO' },
+      { id: 2, name: 'CONSTRUTORA MARINA LTDA', cnpj: '98.765.432/0001-10', tradeName: 'MARINA' },
+      { id: 3, name: 'CONSTRUTORA SOLARES LTDA', cnpj: '11.223.344/0001-55', tradeName: 'SOLARES' },
+    ];
   }
 }
+
 
 // ---------- Boot ----------
 
