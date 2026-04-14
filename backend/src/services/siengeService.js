@@ -1,7 +1,4 @@
-// Camada de serviço: ÚNICO lugar que fala com a API externa do Sienge.
-// Se amanhã o Sienge mudar, só este arquivo muda.
-// Controllers chamam este service; o frontend nunca.
-
+// ONly place where the external Sienge API is called
 const axios = require('axios');
 const { env } = require('../config/env');
 

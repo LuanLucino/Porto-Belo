@@ -1,5 +1,3 @@
-// Controller: recebe a request, valida, delega para o service e responde.
-// Regra: controller NUNCA chama axios nem API externa direto — passa pelo service.
 
 const { siengeGateway } = require('../services/siengeService');
 const { validateCNPJ } = require('../utils/sienge');
