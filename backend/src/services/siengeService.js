@@ -21,9 +21,7 @@ class AsyncSiengeGateway {
   async getSupplier(cnpj) {
     try {
       const response = await this.client.get('/creditors', { params: { cnpj } });
-      return response.data.results && response.data.results.length > 0
-        ? response.data.results[0]
-        : null;
+      return response.data.results;
     } catch (error) {
       console.error('Error fetching supplier data from Sienge:', error.message);
       throw new Error('Failed to fetch supplier data from Sienge');
@@ -32,8 +30,10 @@ class AsyncSiengeGateway {
 
   async getContracts() {
     try {
-      const response = await this.client.get('/supply-contracts');
-      return Array.isArray(response.data.results) ? response.data.results : [];
+      const response = await this.client.get('/supply-contracts/all');
+      return response.data.results && response.data.results.length > 0
+        ? response.data.results
+        : [];
     } catch (error) {
       console.error('Error fetching supplier contracts from Sienge:', error.message);
       throw new Error('Failed to fetch supplier contracts from Sienge');
@@ -86,10 +86,10 @@ class MockSiengeGateway {
 const siengeGateway = env.sienge.mock
   ? new MockSiengeGateway()
   : new AsyncSiengeGateway({
-      baseUrl: env.sienge.baseUrl,
-      sienge_user: env.sienge.user,
-      sienge_password: env.sienge.password,
-      timeoutMs: env.sienge.timeoutMs,
-    });
+    baseUrl: env.sienge.baseUrl,
+    sienge_user: env.sienge.user,
+    sienge_password: env.sienge.password,
+    timeoutMs: env.sienge.timeoutMs,
+  });
 
 module.exports = { siengeGateway, AsyncSiengeGateway, MockSiengeGateway };

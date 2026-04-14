@@ -3,6 +3,29 @@
 
 const { siengeGateway } = require('../services/siengeService');
 
+exports._isSupplierRegistered = async (req, res, next) => {
+  try {
+    const { cnpj } = req.query;
+
+    if (!cnpj) {
+      return res.status(400).json({ error: 'CNPJ é obrigatório.' });
+    }
+    if (typeof cnpj !== 'string') {
+      return res.status(400).json({ error: 'CNPJ deve ser uma string.' });
+    }
+    if (cnpj.length !== 14) {
+      return res.status(400).json({ error: 'CNPJ deve conter 14 dígitos.' });
+    }
+
+    const supplierData = await siengeGateway.getSupplier(cnpj);
+    const isRegistered = supplierData.length > 0 ?? false;
+    return res.json({ isRegistered });
+  }
+  catch (err) {
+    return next(err);
+  }
+};
+
 exports._getSupplier = async (req, res, next) => {
   try {
     const { cnpj } = req.query;

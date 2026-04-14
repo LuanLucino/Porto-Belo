@@ -8,5 +8,8 @@ router.get("/get-supplier", supplierController._getSupplier);
 // Route to get the contracts
 router.get("/get-contracts", supplierController._getContracts);
 
+// Route to check if the supplier is registered
+router.get("/is-supplier-registered", supplierController._isSupplierRegistered);
+
 
 module.exports = router;
