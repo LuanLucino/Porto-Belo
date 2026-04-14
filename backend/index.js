@@ -1,46 +1,70 @@
-// Carrega as variáveis do arquivo .env (TOKEN, PORTA, etc)
-require('dotenv').config();
-
 const express = require('express');
 const cors = require('cors');
 
-// Importa as rotas que vamos criar (fornecedor, notas, etc)
-const fornecedorRoutes = require('./src/routes/fornecedorRoutes');
+const { env } = require('./src/config/env');
+const supplierRoutes = require('./src/routes/sienge');
+const invoiceRoutes = require('./src/routes/invoiceRoutes');
 
-const app = express();
 
-// --- MIDDLEWARES ---
+function getCorsOptions() {
+  return {
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
 
-// Permite que o teu HTML (localhost) aceda a este servidor
-app.use(cors());
+      if (
+        env.frontendOrigins.includes('*') ||
+        env.frontendOrigins.includes(origin)
+      ) {
+        return callback(null, true);
+      }
 
-// Faz o Express conseguir ler o corpo das requisições em JSON
-app.use(express.json());
+      return callback(new Error(`Origem não permitida pelo CORS: ${origin}`));
+    },
+  };
+}
 
-// --- ROTAS ---
-
-// Rota de teste para verificar se o servidor está online
-app.get('/api/health', (req, res) => {
-    res.json({ 
-        status: "Online", 
-        timestamp: new Date().toISOString(),
-        mensagem: "Backend Porto Belo operando corretamente" 
+function registerApplicationHealth(app) {
+  app.get('/api/health', (_req, res) => {
+    res.json({
+      status: 'Online',
+      timestamp: new Date().toISOString(),
+      mensagem: 'Backend Porto Belo operando corretamente',
     });
-});
+  });
+}
 
-// Agrupa todas as rotas de fornecedores sob o prefixo /api
-// Exemplo: POST http://localhost:3001/api/consultar-cnpj
-app.use('/api', fornecedorRoutes);
+function errorHandler() {
+  return (err, _req, res, _next) => {
+    const status = err.statusCode ?? 500;
+    console.error(`[ERRO ${status}]`, err.message);
+    res.status(status).json({ error: err.message || 'Erro interno no servidor.' });
+  };
+}
 
-// --- INICIALIZAÇÃO ---
+function getApplication() {
+  const app = express();
+  const corsOptions = getCorsOptions();
+  const errorHandlerMiddleware = errorHandler();
 
-// Tenta usar a porta do .env ou a 3001 por padrão
-const PORT = process.env.PORT || 3001;
+  app.use(cors(corsOptions));
+  app.use(express.json());
 
-app.listen(PORT, () => {
-    console.log('==========================================');
-    console.log(`🚀 Servidor Porto Belo iniciado com sucesso!`);
-    console.log(`📍 Endereço: http://localhost:${PORT}`);
-    console.log(`🛠️  Pressione CTRL+C para parar`);
-    console.log('==========================================');
+  registerApplicationHealth(app);
+  app.use('/api', supplierRoutes);
+  app.use('/api', invoiceRoutes);
+
+  app.use(errorHandlerMiddleware);
+
+  return app;
+}
+
+const app = getApplication();
+
+app.listen(env.port, () => {
+  console.log('==========================================');
+  console.log(`Servidor Porto Belo iniciado (${env.nodeEnv})`);
+  console.log(`Endereço:  http://localhost:${env.port}`);
+  console.log(`Sienge:    ${env.sienge.mock ? 'MOCK' : env.sienge.baseUrl}`);
+  console.log(`CORS:      ${env.frontendOrigins.join(', ')}`);
+  console.log('==========================================');
 });
