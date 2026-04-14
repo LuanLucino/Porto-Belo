@@ -6,7 +6,7 @@
 // O resto do código (controllers, frontend) só conhece o schema traduzido abaixo.
 
 // Schemas for the frontend (adapted)
-//   Supplier  -> { id, cnpj, name, tradingName, stateRegistrationNumber, personType }
+//   Supplier  -> { id, cnpj, name, tradeName, stateRegistrationNumber, personType }
 //   Contract  -> { id, code, contractName, constructionName, technicalRetention }
 
 const axios = require('axios');
@@ -46,7 +46,7 @@ function adaptSupplier(raw) {
     id: raw.id ?? null,
     cnpj: raw.cnpj ?? null,
     name: raw.name ?? raw.corporateName ?? '',
-    tradingName: raw.tradingName ?? raw.fantasyName ?? '',
+    tradeName: raw.tradeName ?? raw.fantasyName ?? '',
     stateRegistrationNumber: raw.stateRegistrationNumber ?? '',
     personType: raw.personType ?? '',
   };
@@ -117,7 +117,7 @@ class MockSiengeGateway {
       id: 1,
       cnpj,
       name: 'FORNECEDOR EXEMPLO LTDA',
-      tradingName: 'EXEMPLO',
+      tradeName: 'EXEMPLO',
       stateRegistrationNumber: '123456789',
       personType: 'LEGAL',
     };
