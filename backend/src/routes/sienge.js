@@ -13,4 +13,6 @@ router.get("/is-supplier-registered", supplierController._isSupplierRegistered);
 
 router.get("/get-companies", supplierController._getCompanies);
 
+router.get("/get-contracts-by-company-id", supplierController.filterSupplierContractsById);
+
 module.exports = router;
