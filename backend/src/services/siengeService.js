@@ -13,8 +13,8 @@ const axios = require('axios');
 const { env } = require('../config/env');
 const { SiengeUtils } = require('../utils/sienge');
 
-// ---------- Gateway real ----------
 
+// ---------- Gateway real ----------
 class AsyncSiengeGateway {
   constructor(settings) {
     this.client = axios.create({
@@ -60,8 +60,8 @@ class AsyncSiengeGateway {
     }
   }
 }
-// ---------- Gateway mock ----------
 
+// ---------- Gateway mock ----------
 class MockSiengeGateway {
   async getSupplier(cnpj) {
     return {
@@ -90,8 +90,8 @@ class MockSiengeGateway {
     ];
   }
 }
-// ---------- Boot ----------
 
+// ---------- Boot ----------
 const siengeGateway = env.sienge.mock
   ? new MockSiengeGateway()
   : new AsyncSiengeGateway({
