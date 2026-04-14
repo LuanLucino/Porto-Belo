@@ -1,0 +1,249 @@
+    .styles_container__vlAK4 {
+      width: 100%;
+    }
+
+    .styles_container__vlAK4 input,
+    .styles_container__vlAK4 select {
+      width: 100%;
+      border-radius: 0.5rem;
+      padding: 0.5rem 0.25rem 0.5rem 1rem;
+      --tw-bg-opacity: 1;
+      background-color: rgb(255 255 255 / var(--tw-bg-opacity));
+      border-width: 1px;
+      border-style: solid;
+      --tw-border-opacity: 1;
+      border-color: rgb(0 0 0 / var(--tw-border-opacity));
+      outline-color: #000;
+    }
+
+    .styles_container__vlAK4 input.styles_error__N5n4g,
+    .styles_container__vlAK4 select.styles_error__N5n4g {
+      --tw-border-opacity: 1;
+      border-color: rgb(243 76 76 / var(--tw-border-opacity));
+    }
+
+    .styles_container__vlAK4 input:disabled,
+    .styles_container__vlAK4 select:disabled {
+      background-color: #757575;
+      opacity: 0.7;
+    }
+
+    .styles_container__vlAK4 p {
+      text-align: start;
+      --tw-text-opacity: 1;
+      color: rgb(243 76 76 / var(--tw-text-opacity));
+      font-weight: 500;
+    }
+
+    .styles_modal__O8Lmo {
+      outline: 0;
+      margin: 0.5rem;
+      padding: 0.5rem;
+    }
+
+    @media (min-width: 768px) {
+      .styles_modal__O8Lmo {
+        margin: 2rem;
+        padding: 2rem;
+      }
+    }
+
+    .styles_modal__O8Lmo {
+      border-radius: 0.5rem;
+    }
+
+    .styles_modalOverlay__s37Hp {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgb(28 25 23 / var(--tw-bg-opacity));
+      --tw-bg-opacity: 0.9;
+    }
+
+    .styles_content__C6CAn {
+      max-width: 650px;
+      width: 100%;
+      background-color: #fff;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      padding: 30px;
+      color: #505050;
+      position: relative;
+    }
+
+    .styles_content__C6CAn .styles_closeBtn__FRD04 {
+      position: absolute;
+      top: 0;
+      right: 0;
+      margin-top: 15px;
+      margin-right: 15px;
+      color: red;
+    }
+
+    .styles_container__lBiD0 {
+      border-radius: 0.5rem;
+      border-width: 4px;
+      border-style: dashed;
+      --tw-border-opacity: 1;
+      border-color: rgb(103 104 90 / var(--tw-border-opacity));
+      padding: 2rem;
+      height: 190px;
+      width: 450px;
+    }
+
+    .styles_container__lBiD0 div {
+      display: flex;
+      width: 100%;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .styles_container__ds2L_ {
+      margin-top: 2rem;
+    }
+
+    .styles_container__ds2L_ fieldset {
+      border-radius: 0.25rem;
+      border-width: 1px;
+      --tw-border-opacity: 1;
+      border-color: rgb(220 38 38 / var(--tw-border-opacity));
+      padding: 1rem 0.5rem;
+    }
+
+    .styles_container__ds2L_ fieldset legend {
+      padding-right: 2rem;
+      padding-left: 0.5rem;
+    }
+
+    .styles_table__iaDYK {
+      border-collapse: separate;
+      border-spacing: 0 4px;
+      border-radius: 0.25rem;
+      border-width: 1px;
+      --tw-border-opacity: 1;
+      border-color: rgb(220 38 38 / var(--tw-border-opacity));
+      padding: 1rem 0.5rem;
+      width: 100%;
+      text-align: center;
+      font-weight: 500;
+    }
+
+    .styles_table__iaDYK thead {
+      --tw-bg-opacity: 1;
+      background-color: rgb(170 170 170 / var(--tw-bg-opacity));
+      font-size: 1.125rem;
+      line-height: 1.75rem;
+      --tw-text-opacity: 1;
+      color: rgb(255 255 255 / var(--tw-text-opacity));
+    }
+
+    .styles_table__iaDYK tbody tr {
+      background: #eee;
+    }
+
+    .styles_table__iaDYK tbody tr:nth-child(2n) {
+      background: #ddd;
+    }
+
+    .styles_table__iaDYK td,
+    .styles_table__iaDYK th {
+      padding: 5px;
+    }
+
+    .styles_container__SgQi3 {
+      display: flex;
+      width: 100%;
+      flex-direction: column;
+    }
+
+    .styles_container__SgQi3 textarea {
+      width: 100%;
+      border-radius: 0.5rem;
+      padding: 0.5rem 0.25rem 0.5rem 1rem;
+      --tw-bg-opacity: 1;
+      background-color: rgb(255 255 255 / var(--tw-bg-opacity));
+      border-width: 1px;
+      border-style: solid;
+      --tw-border-opacity: 1;
+      border-color: rgb(0 0 0 / var(--tw-border-opacity));
+      outline-color: #000;
+    }
+
+    .styles_container__SgQi3 textarea.styles_error__ZBRx_ {
+      --tw-border-opacity: 1;
+      border-color: rgb(243 76 76 / var(--tw-border-opacity));
+    }
+
+    .styles_container__SgQi3 textarea:disabled {
+      background-color: #757575;
+      opacity: 0.7;
+    }
+
+    .styles_container__SgQi3 p {
+      --tw-text-opacity: 1;
+      color: rgb(243 76 76 / var(--tw-text-opacity));
+      font-weight: 500;
+    }
+
+    .styles_container__dEHhQ {
+      margin-top: 2rem;
+    }
+
+    .styles_container__dEHhQ fieldset {
+      border-radius: 0.25rem;
+      border-width: 1px;
+      --tw-border-opacity: 1;
+      border-color: rgb(220 38 38 / var(--tw-border-opacity));
+      padding: 1rem 0.5rem;
+    }
+
+    .styles_container__dEHhQ fieldset legend {
+      padding-right: 2rem;
+      padding-left: 0.5rem;
+    }
+
+    .styles_container__fQ7ZZ {
+      margin-top: 2rem;
+    }
+
+    .styles_container__fQ7ZZ fieldset {
+      border-radius: 0.25rem;
+      border-width: 1px;
+      --tw-border-opacity: 1;
+      border-color: rgb(220 38 38 / var(--tw-border-opacity));
+      padding: 1rem 0.5rem;
+    }
+
+    .styles_container__fQ7ZZ fieldset legend {
+      padding-right: 2rem;
+      padding-left: 0.5rem;
+    }
+
+    .styles_container__Efbvj>section {
+      margin-top: 1rem;
+      padding: 1rem;
+    }
+
+    .styles_container__Efbvj fieldset,
+    .styles_container__Efbvj>section {
+      border-radius: 0.25rem;
+      border-width: 1px;
+      --tw-border-opacity: 1;
+      border-color: rgb(220 38 38 / var(--tw-border-opacity));
+    }
+
+    .styles_container__Efbvj fieldset {
+      padding: 1rem 0.5rem;
+    }
+
+    .styles_container__Efbvj fieldset legend {
+      padding-right: 2rem;
+      padding-left: 0.5rem;
+    }

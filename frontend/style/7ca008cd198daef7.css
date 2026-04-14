@@ -1,0 +1,29 @@
+    .styles_container__2UcOS table {
+      border-collapse: separate;
+      border-spacing: 0 4px;
+      width: 100%;
+      text-align: center;
+      font-weight: 500;
+    }
+
+    .styles_container__2UcOS table thead {
+      --tw-bg-opacity: 1;
+      background-color: rgb(170 170 170 / var(--tw-bg-opacity));
+      font-size: 1.125rem;
+      line-height: 1.75rem;
+      --tw-text-opacity: 1;
+      color: rgb(255 255 255 / var(--tw-text-opacity));
+    }
+
+    .styles_container__2UcOS table tbody tr {
+      background: #eee;
+    }
+
+    .styles_container__2UcOS table tbody tr:nth-child(2n) {
+      background: #ddd;
+    }
+
+    .styles_container__2UcOS table td,
+    .styles_container__2UcOS table th {
+      padding: 5px;
+    }
