@@ -55,13 +55,19 @@ function adaptSupplier(raw) {
 function adaptContract(raw) {
   return {
     id: raw.id ?? raw.contractNumber ?? null,
-    code: raw.contractNumber ?? raw.code ?? '',
-    contractName: raw.object ?? raw.contractName ?? '',
-    constructionName: raw.buildings?.[0]?.name ?? raw.constructionName ?? '',
-    technicalRetention: raw.technicalRetention ?? '',
   };
 }
 
+function adaptCompany(raw) {
+  const dataFromSienge = companies.results
+  const formattedData = dataFromSienge.map(company => ({
+    id: company.id,
+    name: company.name,
+    cnpj: company.cnpj,
+    tradeName: company.tradeName,
+  }));
+  return formattedData;
+}
 // ---------- Gateway real ----------
 
 class AsyncSiengeGateway {
@@ -114,6 +120,18 @@ class AsyncSiengeGateway {
       return response.data
     } catch (err) {
       const mapped = mapSiengeError(err, 'Falha ao consultar contratos de venda no Sienge.');
+      if (mapped === null) return [];
+      throw mapped;
+    }
+  }
+
+  async getCompanies() {
+    try {
+      const response = await this.client.get('/companies')
+      const list = Array.isArray(response.data?.results) ? response.data.results : [];
+      return list.map(adaptCompany);
+    } catch (err) {
+      const mapped = mapSiengeError(err, 'Falha ao consultar empresas no Sienge.');
       if (mapped === null) return [];
       throw mapped;
     }

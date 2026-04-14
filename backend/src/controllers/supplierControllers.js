@@ -49,3 +49,13 @@ exports._getContracts = async (_req, res, next) => {
     return next(err);
   }
 };
+
+
+exports._getCompanies = async (_req, res, next) => {
+  try {
+    const companies = await siengeGateway.getCompanies();
+    return res.json({ companies });
+  } catch (err) {
+    return next(err);
+  }
+};
