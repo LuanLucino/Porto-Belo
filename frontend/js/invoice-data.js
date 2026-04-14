@@ -1,4 +1,4 @@
-// Page script for dados-da-nota.html
+// Page script for invoice-data.html
 // Collects invoice form fields, sends to backend, and navigates to the next step.
 
 async function sendInvoiceData() {
@@ -17,7 +17,7 @@ async function sendInvoiceData() {
             invoiceValue,
             emissionDate,
         });
-        window.location.href = './dados-do-pagamento.html';
+        window.location.href = './payment-data.html';
     } catch (err) {
         console.error('Erro ao salvar nota:', err);
         alert(err.message);

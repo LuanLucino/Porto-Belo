@@ -13,5 +13,5 @@ function prosseguirParaFinalizar() {
     localStorage.setItem('dadosPagamento', JSON.stringify(dadosPagamento));
 
     // 3. Redireciona
-    window.location.href = "./finalizar-pagamento.html";
+    window.location.href = "./finalize-payment.html";
 }

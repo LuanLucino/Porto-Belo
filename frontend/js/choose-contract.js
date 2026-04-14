@@ -67,7 +67,7 @@ function buildGoToNextStep(contracts) {
         });
 
         localStorage.setItem('selectedContracts', JSON.stringify(selectedContracts));
-        window.location.href = 'dados-da-nota.html';
+        window.location.href = 'invoice-data.html';
     };
 }
 
