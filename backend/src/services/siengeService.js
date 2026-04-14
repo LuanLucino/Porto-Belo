@@ -36,6 +36,16 @@ class AsyncSiengeGateway {
       throw new Error('Failed to fetch supplier contracts from Sienge');
     }
   }
+
+  async saveInvoice(invoice) {
+    try {
+      const response = await this.client.post('/bills', invoice);
+      return response.data;
+    } catch (error) {
+      console.error('Error saving invoice on Sienge:', error.message);
+      throw new Error('Failed to save invoice on Sienge');
+    }
+  }
 }
 
 // Gateway mock — mesma interface, dados fake.
@@ -76,6 +86,15 @@ class MockSiengeGateway {
         technicalRetention: 'R$ 1.200,00',
       },
     ];
+  }
+
+  async saveInvoice(invoice) {
+    return {
+      id: Math.floor(Math.random() * 100000),
+      status: 'RECEIVED',
+      receivedAt: new Date().toISOString(),
+      invoice,
+    };
   }
 }
 

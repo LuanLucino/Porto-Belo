@@ -88,84 +88,8 @@
         </div>
     </div>
 
-    <script>
-        // 1. Recupera os dados que vieram da busca (Print 1)
-        // No mundo real, isso viria da sua API. Aqui simulamos o recebimento:
-        const payloadFornecedor = JSON.parse(localStorage.getItem('buscaFornecedor')) || {
-            razaoSocial: "FORNECEDOR EXEMPLO LTDA",
-            nomeFantasia: "EXEMPLO",
-            cnpj: "00.000.000/0001-00",
-            contratos: [
-                { obra: "EDIFICIO PORTO BELO", nome: "FORNECIMENTO DE CONCRETO", codigo: "CTR-102", retencao: "R$ 500,00" },
-                { obra: "RESIDENCIAL MARINA", nome: "SERVIÇOS DE PINTURA", codigo: "CTR-205", retencao: "R$ 0,00" },
-                { obra: "CONDOMINIO SOLARES", nome: "INSTALAÇÃO ELÉTRICA", codigo: "CTR-309", retencao: "R$ 1.200,00" }
-            ]
-        };
-
-        // 2. Preenche os dados do cabeçalho
-        document.getElementById('razao-social-val').textContent = payloadFornecedor.razaoSocial;
-        document.getElementById('nome-fantasia-val').textContent = payloadFornecedor.nomeFantasia;
-        document.getElementById('cnpj-val').textContent = payloadFornecedor.cnpj;
-
-        // 3. Renderiza os contratos na tabela
-        const tbody = document.getElementById('tabela-contratos-body');
-        const btnProxima = document.getElementById('btn-proxima');
-
-        function renderTable() {
-            tbody.innerHTML = '';
-            payloadFornecedor.contratos.forEach((item, index) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><input type="checkbox" class="contrato-item" data-index="${index}"></td>
-                    <td class="text-start">${item.obra}</td>
-                    <td>${item.nome}</td>
-                    <td>${item.codigo}</td>
-                    <td class="bg-primary text-white">${item.retencao}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        renderTable();
-
-        // 4. Lógica de Seleção e ativação do botão "Próxima"
-        document.addEventListener('change', (e) => {
-            if (e.target.classList.contains('contrato-item') || e.target.id === 'master-checkbox') {
-                
-                // Lógica de "Selecionar Todos"
-                if (e.target.id === 'master-checkbox') {
-                    const checks = document.querySelectorAll('.contrato-item');
-                    checks.forEach(c => c.checked = e.target.checked);
-                }
-
-                // Verifica se há algo selecionado para habilitar o botão
-                const selecionados = document.querySelectorAll('.contrato-item:checked');
-                if (selecionados.length > 0) {
-                    btnProxima.classList.add('btn-active');
-                    btnProxima.disabled = false;
-                } else {
-                    btnProxima.classList.remove('btn-active');
-                    btnProxima.disabled = true;
-                }
-            }
-        });
-
-        // 5. Salva apenas o que foi escolhido e vai para a tela de Dados da Nota (Print 3)
-        btnProxima.addEventListener('click', () => {
-            const checks = document.querySelectorAll('.contrato-item:checked');
-            const contratosEscolhidos = [];
-            
-            checks.forEach(check => {
-                const idx = check.getAttribute('data-index');
-                contratosEscolhidos.push(payloadFornecedor.contratos[idx]);
-            });
-
-            // Armazena a seleção para a próxima tela usar
-            localStorage.setItem('contratosSelecionados', JSON.stringify(contratosEscolhidos));
-            
-            // Redireciona (ajuste o nome do arquivo conforme sua pasta)
-            window.location.href = "dados-da-nota.html";
-        });
-    </script>
+    <script src="../js/config.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/choose-contract.js"></script>
 </body>
 </html>

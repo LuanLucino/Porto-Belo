@@ -2,7 +2,8 @@ const express = require('express');
 const cors = require('cors');
 
 const { env } = require('./src/config/env');
-const supplierRoutes = require('./src/routes/supplierRoutes');
+const supplierRoutes = require('./src/routes/sienge');
+const invoiceRoutes = require('./src/routes/invoiceRoutes');
 
 
 function getCorsOptions() {
@@ -49,6 +50,7 @@ function getApplication() {
 
   registerApplicationHealth(app);
   app.use('/api', supplierRoutes);
+  app.use('/api', invoiceRoutes);
 
   app.use(errorHandlerMiddleware);
 

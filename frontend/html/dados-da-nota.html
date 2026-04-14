@@ -292,7 +292,7 @@
                 </button>
                 <button
                   class="w-full rounded bg-success px-16 py-2 text-white transition-colors hover:bg-success-hover text-2xl font-semibold"
-                  type="button" onclick="enviarDadosNota()">
+                  type="button" onclick="sendInvoiceData()">
                   <p>Próxima</p>
                 </button>
               </div>
@@ -314,26 +314,7 @@
   </div>
   <script src="../js/config.js"></script>
   <script src="../js/api.js"></script>
-  <script>
-    async function enviarDadosNota() {
-      const numero = document.getElementById('numeroNota')?.value || '0';
-      const valor = document.getElementById('valorNotaFiscal')?.value || '0,00';
-      const dataEmissao = document.getElementById('dataEmissao')?.value || '';
-
-      if (!numero || numero === '0') {
-        alert('Por favor, preencha o número da nota.');
-        return;
-      }
-
-      try {
-        await window.api.post('/salvar-nota', { numeroNota: numero, valor, dataEmissao });
-        window.location.href = './dados-do-pagamento.html';
-      } catch (error) {
-        console.error('Erro ao salvar nota:', error);
-        alert(error.message);
-      }
-    }
-  </script>
+  <script src="../js/invoice-data.js"></script>
 </body>
 
 </html>
