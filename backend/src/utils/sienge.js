@@ -40,6 +40,11 @@ class SiengeUtils {
 
         return {
             id: raw.id ?? raw.contractNumber ?? null,
+            companyName: raw.companyName ?? '',
+            companyId: raw.companyId ?? null,
+            supplierName: raw.supplierName ?? '',
+            supplierId: raw.supplierId ?? null,
+            description: raw.description ?? '',
         };
     }
 
