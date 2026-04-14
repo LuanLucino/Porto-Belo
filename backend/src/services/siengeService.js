@@ -5,7 +5,7 @@
 //  - Tratar "não encontrado" (404) como null/lista vazia — não como erro.
 // O resto do código (controllers, frontend) só conhece o schema traduzido abaixo.
 
-// Schema estável (o que o frontend consome):
+// Schemas for the frontend (adapted)
 //   Supplier  -> { id, cnpj, name, tradingName, stateRegistrationNumber, personType }
 //   Contract  -> { id, code, contractName, constructionName, technicalRetention }
 

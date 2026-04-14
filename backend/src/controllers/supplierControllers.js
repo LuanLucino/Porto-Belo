@@ -14,8 +14,7 @@ exports._isSupplierRegistered = async (req, res, next) => {
     const supplier = await siengeGateway.getSupplier(cnpj);
     return res.json({ isRegistered: supplier !== null });
   } catch (err) {
-    // "CNPJ mal formado" pro Sienge = "não está registrado" pra nós.
-    // (endpoint binário: ou é, ou não é.)
+    // (boolean endpoint: true of false, exists or not exists.)
     if (err.statusCode === 400) {
       return res.json({ isRegistered: false });
     }
