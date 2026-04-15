@@ -51,3 +51,39 @@
 .styles_form__pLbUz button {
     margin-top: 1rem;
 }
+
+/*aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa*/
+
+/* Caixa de mensagens personalizada */
+.message-box {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  min-width: 300px;
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  z-index: 9999;
+  display: none; /* começa escondida */
+}
+
+/* Variações de cor */
+.message-box.error {
+  background-color: #e74c3c; /* vermelho */
+}
+
+.message-box.warning {
+  background-color: #f1c40f; /* amarelo */
+  color: #000;
+}
+
+.message-box.success {
+  background-color: #07bc0c; /* verde */
+}
+
+.message-box.info {
+  background-color: #e74c3c; /* vermelho */
+}
