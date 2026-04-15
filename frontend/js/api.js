@@ -17,7 +17,7 @@
     try {
       response = await fetch(url, options);
     } catch (networkErr) {
-      throw new Error('Não foi possível conectar ao servidor. O backend está rodando?');
+      throw new Error('CNPJ não cadastrado no Sienge. Entre em contato com o suporte.');/*Não foi possível conectar ao servidor. O backend está rodando?*/
     }
 
     const data = await response.json().catch(() => ({}));

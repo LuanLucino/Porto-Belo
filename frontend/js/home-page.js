@@ -10,10 +10,6 @@ function showMessage(text, type = 'info') {
     }, 3000);
 }
 
-//17.167.396/0001-69
-//60.540.353/0001-06
-
-
 function calculateCheckDigit(numbers) {
     let sum = 0;
     let pos = numbers.length - 7;
