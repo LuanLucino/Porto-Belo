@@ -73,6 +73,7 @@ class AsyncSiengeGateway {
     });
   }
 
+  // This function receives the limit and offset parameters default as null
   async getSupplier(cnpj) {
     try {
       const response = await this.client.get('/creditors', { params: { cnpj } });
@@ -85,9 +86,14 @@ class AsyncSiengeGateway {
     }
   }
 
-  async getContracts() {
+  async getContracts(limit = null, offset = null) {
     try {
-      const response = await this.client.get('/supply-contracts/all');
+      const contractsParams = {
+        limit: limit,
+        offset: offset,
+      } || {};
+
+      const response = await this.client.get('/supply-contracts/all', { params: contractsParams });
       const list = Array.isArray(response.data?.results) ? response.data.results : [];
       return list.map(adaptContract);
     } catch (err) {
