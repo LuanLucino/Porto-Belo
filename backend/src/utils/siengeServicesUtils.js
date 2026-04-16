@@ -47,9 +47,17 @@ class SiengeUtils {
     }
 
     static adaptContractItems(raw) {
-        return {
-
+        let contractItems = {};
+        for (let i = 0; i < raw.results.length; i++) {
+            const item = raw.results[i];
+            contractItems[item.id] = {
+                id: item.id ?? null,
+                description: item.description ?? '',
+                quantity: item.quantity ?? 0,
+                unit: item.unitOfMeasure ?? '',
+            };
         }
+        return contractItems;
     }
 
 

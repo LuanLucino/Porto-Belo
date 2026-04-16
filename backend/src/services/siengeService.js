@@ -78,7 +78,7 @@ class AsyncSiengeGateway {
       const list = Array.isArray(response.data?.results) ? response.data.results : [];
       return list.map(SiengeUtils.adaptCompany);
     } catch (err) {
-      const mapped = SiengeUtils.mapSiengeError(err, 'Falha ao salvar nota no Sienge.');
+      const mapped = SiengeUtils.mapSiengeError(err, 'Falha ao consultar empresas no Sienge.');
       if (mapped === null) throw SiengeUtils.httpError(404, 'Recurso não encontrado no Sienge.');
       throw mapped;
     }
@@ -103,7 +103,7 @@ class AsyncSiengeGateway {
     // This endpoint returns an array of building ids that are linked to the contract
     const response = await this.client.get("/supply-contracts/buildings", { params })
     const buildingIds = Array.isArray(response.data?.results) ? response.data.results : [];
-    return buildingIds;
+    return buildingIds.map(SiengeUtils.adaptContractItems);
   }
 
   async createMeasurement() {
