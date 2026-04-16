@@ -24,6 +24,7 @@ exports._isSupplierRegistered = async (req, res, next) => {
 exports._getSupplier = async (req, res, next) => {
   try {
     const cnpj = req.query.cnpj;
+
     if (!cnpj) {
       return res.status(400).json({ error: 'cnpj é obrigatório.' });
     }
@@ -35,7 +36,8 @@ exports._getSupplier = async (req, res, next) => {
 
     return res.json({ supplierData });
   } catch (err) {
-    // Propaga 400 do Sienge (CNPJ mal formado) com a mensagem útil.
+    // Fix this later, the sienge does not return 404 when supplier is not found,
+    // It returns 200 but with an empty array, so we need to handle this case separately
     return next(err);
   }
 };
