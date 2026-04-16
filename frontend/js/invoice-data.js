@@ -1,6 +1,16 @@
 // Page script for invoice-data.html
 // Collects invoice form fields, sends to backend, and navigates to the next step.
 
+function fillHeader() {
+    const supplier = getLocalStorage('supplier');
+    if (!supplier) return;
+    document.getElementById('razao-social-val').textContent = supplier.name ?? '';
+    document.getElementById('nome-fantasia-val').textContent = supplier.tradeName ?? '';
+    document.getElementById('cnpj-val').textContent = supplier.cnpj ?? '';
+}
+
+fillHeader();
+
 async function sendInvoiceData() {
     const invoiceNumber = document.getElementById('numeroNota')?.value || '0';
     const invoiceValue = document.getElementById('valorNotaFiscal')?.value || '0,00';

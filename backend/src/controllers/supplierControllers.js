@@ -40,9 +40,13 @@ exports._getSupplier = async (req, res, next) => {
   }
 };
 
-exports._getContracts = async (_req, res, next) => {
+exports._getContracts = async (req, res, next) => {
   try {
-    const supplierContracts = await siengeGateway.getAllContracts();
+    const supplierId = req.query.supplierId;
+    if (!supplierId) {
+      return res.status(400).json({ error: 'supplierId é obrigatório.' });
+    }
+    const supplierContracts = await siengeGateway.getSupplierContracts(Number(supplierId));
     return res.json({ supplierContracts });
   } catch (err) {
     return next(err);
