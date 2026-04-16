@@ -95,7 +95,7 @@ class AsyncSiengeGateway {
     const response = await this.client.get("/supply-contracts/items", { params })
 
   }
-  static getBuildingConstructIds(documentId, contractNumber) {
+  async getBuildingConstructIds(documentId, contractNumber) {
     const params = {
       documentId: documentId,
       contractNumber: contractNumber,
@@ -105,7 +105,6 @@ class AsyncSiengeGateway {
     const buildingIds = Array.isArray(response.data?.results) ? response.data.results : [];
     return buildingIds.map(SiengeUtils.adaptContractItems);
   }
-
   async createMeasurement() {
     throw new Error('Not implemented yet');
   }
