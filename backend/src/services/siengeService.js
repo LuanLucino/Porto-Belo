@@ -11,7 +11,7 @@
 
 const axios = require('axios');
 const { env } = require('../config/env');
-const { SiengeUtils } = require('../utils/utils');
+const { SiengeUtils } = require('../utils/siengeServicesUtils');
 
 
 // ---------- Gateway real ----------
@@ -36,11 +36,35 @@ class AsyncSiengeGateway {
     }
   }
 
-  async getContracts(offset = null, limit = null) {
+  async getContractsPage(offset, limit) {
+    const response = await this.client.get('/supply-contracts/all', { params: { offset, limit } });
+    return response.data;
+  }
+
+  async getSupplierContracts(supplierId) {
+    const PAGE_SIZE = 200;
     try {
-      const response = await this.client.get('/supply-contracts/all', { params: { offset, limit } });
-      const list = Array.isArray(response.data?.results) ? response.data.results : [];
-      return list.map(SiengeUtils.adaptContract);
+
+      // gets the count
+      const first = await this.getContractsPage(0, 1);
+      const total = first?.resultSetMetadata?.count ?? 0;
+      if (total === 0) return [];
+
+      // creates the parallel requests
+      const pages = Math.ceil(total / PAGE_SIZE);
+      const requests = Array.from({ length: pages }, (_, i) =>
+        this.getContractsPage(i * PAGE_SIZE, PAGE_SIZE)
+      );
+      const responses = await Promise.all(requests);
+
+      // concatenates and adapts the results
+      const all = responses.flatMap(r =>
+        Array.isArray(r?.results) ? r.results : []
+      );
+
+      const supplierContracts = all.filter(c => c.supplierId === supplierId);
+
+      return supplierContracts.map(SiengeUtils.adaptContract);
     } catch (err) {
       const mapped = SiengeUtils.mapSiengeError(err, 'Falha ao consultar contratos no Sienge.');
       if (mapped === null) return [];
@@ -74,12 +98,9 @@ class MockSiengeGateway {
     };
   }
 
-  async getContracts(offset = null, limit = null) {
-    return [
-      { id: 102, code: 'CTR-102', contractName: 'FORNECIMENTO DE CONCRETO', constructionName: 'EDIFICIO PORTO BELO', technicalRetention: 'R$ 500,00' },
-      { id: 205, code: 'CTR-205', contractName: 'SERVIÇOS DE PINTURA', constructionName: 'RESIDENCIAL MARINA', technicalRetention: 'R$ 0,00' },
-      { id: 309, code: 'CTR-309', contractName: 'INSTALAÇÃO ELÉTRICA', constructionName: 'CONDOMINIO SOLARES', technicalRetention: 'R$ 1.200,00' },
-    ];
+  async getSupplierContracts(supplierId) {
+    const allContracts = await this.getAllContracts();
+    return allContracts.filter(c => c.supplierId === supplierId);
   }
 
   async saveInvoice(invoice) {

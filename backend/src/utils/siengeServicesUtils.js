@@ -48,6 +48,7 @@ class SiengeUtils {
         error.statusCode = statusCode;
         return error;
     }
+
 }
 
 module.exports = { SiengeUtils, HTTPError };

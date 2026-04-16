@@ -3,7 +3,6 @@
 // Aqui garantimos presença do parâmetro e propagamos os erros do Sienge de forma coerente.
 
 const { siengeGateway } = require('../services/siengeService');
-
 exports._isSupplierRegistered = async (req, res, next) => {
   try {
     const cnpj = req.query.cnpj;
@@ -43,7 +42,7 @@ exports._getSupplier = async (req, res, next) => {
 
 exports._getContracts = async (_req, res, next) => {
   try {
-    const supplierContracts = await siengeGateway.getContracts();
+    const supplierContracts = await siengeGateway.getAllContracts();
     return res.json({ supplierContracts });
   } catch (err) {
     return next(err);
