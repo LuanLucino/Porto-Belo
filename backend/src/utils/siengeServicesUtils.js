@@ -39,6 +39,10 @@ class SiengeUtils {
             constructionName: raw.buildings?.[0]?.name ?? raw.constructionName ?? '',
             technicalRetention: raw.technicalRetention ?? '',
             supplierId: raw.creditorId ?? raw.supplierId ?? null,
+            // In a contract record, the supplier can only be in one building
+            // So i take the first one if it exists
+            buildingId: raw.buildings?.[0]?.buildingId ?? null,
+            buildingName: raw.buildings?.[0]?.name ?? '',
         };
     }
 

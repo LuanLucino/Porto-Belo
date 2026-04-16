@@ -83,6 +83,9 @@ class AsyncSiengeGateway {
       throw mapped;
     }
   }
+  async createMeasurement() {
+    throw new Error('Not implemented yet');
+  }
 }
 
 // ---------- Gateway mock ----------
