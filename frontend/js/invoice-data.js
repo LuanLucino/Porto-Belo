@@ -1,25 +1,52 @@
 // Page script for invoice-data.html
 // Collects invoice form fields, sends to backend, and navigates to the next step.
 
-async function sendInvoiceData() {
-    const invoiceNumber = document.getElementById('numeroNota')?.value || '0';
-    const invoiceValue = document.getElementById('valorNotaFiscal')?.value || '0,00';
-    const emissionDate = document.getElementById('dataEmissao')?.value || '';
+let selectedFile = null;
 
-    if (!invoiceNumber || invoiceNumber === '0') {
+function fillHeader() {
+    const supplier = getLocalStorage('supplier');
+    if (!supplier) return;
+    document.getElementById('razao-social-val').textContent = supplier.name ?? '';
+    document.getElementById('nome-fantasia-val').textContent = supplier.tradeName ?? '';
+    document.getElementById('cnpj-val').textContent = supplier.cnpj ?? '';
+}
+
+function setupFileInput() {
+    document.getElementById('invoiceFile').addEventListener('change', (e) => {
+        selectedFile = e.target.files[0] || null;
+        document.getElementById('fileName').textContent = selectedFile ? selectedFile.name : '';
+    });
+}
+
+async function sendInvoiceData() {
+    const invoiceNumber = document.getElementById('numeroNota')?.value || '';
+    const invoiceValue = document.getElementById('valorNotaFiscal')?.value || '';
+    const emissionDate = document.getElementById('dataEmissao')?.value || '';
+    const dueDate = document.getElementById('dataVencimento')?.value || '';
+
+    if (!invoiceNumber) {
         alert('Por favor, preencha o número da nota.');
         return;
     }
 
+    const formData = new FormData();
+    formData.append('invoiceNumber', invoiceNumber);
+    formData.append('invoiceValue', invoiceValue);
+    formData.append('emissionDate', emissionDate);
+    formData.append('dueDate', dueDate);
+
+    if (selectedFile) {
+        formData.append('invoiceFile', selectedFile);
+    }
+
     try {
-        await window.api.post('/save-invoice', {
-            invoiceNumber,
-            invoiceValue,
-            emissionDate,
-        });
+        await window.api.postForm('/save-invoice', formData);
         window.location.href = './payment-data.html';
     } catch (err) {
         console.error('Erro ao salvar nota:', err);
         alert(err.message);
     }
 }
+
+fillHeader();
+setupFileInput();

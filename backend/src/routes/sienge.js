@@ -6,11 +6,9 @@ const supplierController = require('../controllers/supplierControllers');
 router.get("/get-supplier", supplierController._getSupplier);
 
 // Route to get the contracts
-router.get("/get-contracts", supplierController._getContractsByCompanyId);
+router.get("/get-contracts", supplierController._getContracts);
 
 // Route to check if the supplier is registered
 router.get("/is-supplier-registered", supplierController._isSupplierRegistered);
-
-router.get("/get-companies", supplierController._getCompanies);
 
 module.exports = router;

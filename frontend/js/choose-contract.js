@@ -71,13 +71,29 @@ function buildGoToNextStep(contracts) {
     };
 }
 
+async function getSupplierContracts(supplierId) {
+    const cacheKey = 'supplierContracts_' + supplierId;
+    const cached = getCachedData(cacheKey);
+    if (cached) return cached;
+
+    const data = await window.api.get('/get-contracts?supplierId=' + encodeURIComponent(supplierId));
+    const contracts = data?.supplierContracts ?? [];
+    setCachedData(cacheKey, contracts, 15);
+    return contracts;
+}
+
 async function init() {
-    fillHeader(getSupplierFromStorage());
+    const supplier = getSupplierFromStorage();
+    fillHeader(supplier);
+
+    if (!supplier?.id) {
+        alert('Fornecedor não encontrado. Volte e informe o CNPJ.');
+        return;
+    }
 
     let contracts = [];
     try {
-        const data = await window.api.get('/get-contracts');
-        contracts = data.supplierContracts ?? [];
+        contracts = await getSupplierContracts(supplier.id);
     } catch (err) {
         console.error('Erro ao carregar contratos:', err);
         alert(err.message);

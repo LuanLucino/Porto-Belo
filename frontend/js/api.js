@@ -28,8 +28,25 @@
     return data;
   }
 
+  async function sendForm(path, formData) {
+    const url = `${base()}${path}`;
+    let response;
+    try {
+      response = await fetch(url, { method: 'POST', body: formData });
+    } catch (networkErr) {
+      throw new Error('Não foi possível conectar ao servidor. O backend está rodando?');
+    }
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      const message = data.error || data.erro || `Erro HTTP ${response.status}`;
+      throw new Error(message);
+    }
+    return data;
+  }
+
   window.api = {
     get: (path) => request('GET', path),
     post: (path, body) => request('POST', path, body),
+    postForm: (path, formData) => sendForm(path, formData),
   };
 })();

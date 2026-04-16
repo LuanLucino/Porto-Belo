@@ -45,10 +45,10 @@
             </header>
             <section class="flex justify-between">
               <div>
-                <p><strong>Razão Social: </strong></p>
-                <p><strong>Nome Fantasia: </strong></p>
+                <p><strong>Razão Social: </strong><span id="razao-social-val"></span></p>
+                <p><strong>Nome Fantasia: </strong><span id="nome-fantasia-val"></span></p>
               </div>
-              <p><strong>CNPJ: </strong></p>
+              <p><strong>CNPJ: </strong><span id="cnpj-val"></span></p>
             </section>
           </header>
 
@@ -134,11 +134,13 @@
 
                   <!-- Botão de upload -->
                   <div class="mt-8 flex items-center">
+                    <input type="file" id="invoiceFile" accept=".pdf,.png,.jpg,.jpeg" hidden />
                     <button
                       class="rounded py-2 text-white transition-colors w-auto bg-tertiary px-8 text-2xl hover:bg-tertiary-hover"
-                      type="button">
+                      type="button" onclick="document.getElementById('invoiceFile').click()">
                       <p>Anexar Nota Fiscal</p>
                     </button>
+                    <span id="fileName" class="ml-4 text-sm"></span>
                   </div>
                 </form>
               </section>
@@ -174,6 +176,7 @@
   </div>
   <script src="../js/config.js"></script>
   <script src="../js/api.js"></script>
+  <script src="../js/utils/utils.js"></script>
   <script src="../js/invoice-data.js"></script>
 </body>
 

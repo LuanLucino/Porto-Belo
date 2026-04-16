@@ -3,7 +3,6 @@
 // Aqui garantimos presença do parâmetro e propagamos os erros do Sienge de forma coerente.
 
 const { siengeGateway } = require('../services/siengeService');
-
 exports._isSupplierRegistered = async (req, res, next) => {
   try {
     const cnpj = req.query.cnpj;
@@ -41,25 +40,14 @@ exports._getSupplier = async (req, res, next) => {
   }
 };
 
-exports._getContractsByCompanyId = async (req, res, next) => {
+exports._getContracts = async (req, res, next) => {
   try {
-    const companyId = req.query.companyId;
-    if (!companyId) {
-      return res.status(400).json({ error: 'companyId é obrigatório.' });
+    const supplierId = req.query.supplierId;
+    if (!supplierId) {
+      return res.status(400).json({ error: 'supplierId é obrigatório.' });
     }
-
-    const supplierContracts = await siengeGateway.getContractsByCompanyId(companyId);
+    const supplierContracts = await siengeGateway.getSupplierContracts(Number(supplierId));
     return res.json({ supplierContracts });
-  } catch (err) {
-    return next(err);
-  }
-};
-
-
-exports._getCompanies = async (_req, res, next) => {
-  try {
-    const companies = await siengeGateway.getCompanies();
-    return res.json({ companies });
   } catch (err) {
     return next(err);
   }
