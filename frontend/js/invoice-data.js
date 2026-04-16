@@ -29,18 +29,19 @@ async function sendInvoiceData() {
         return;
     }
 
-    const formData = new FormData();
-    formData.append('invoiceNumber', invoiceNumber);
-    formData.append('invoiceValue', invoiceValue);
-    formData.append('emissionDate', emissionDate);
-    formData.append('dueDate', dueDate);
-
-    if (selectedFile) {
-        formData.append('invoiceFile', selectedFile);
-    }
-
     try {
-        await window.api.postForm('/save-invoice', formData);
+        await window.api.post('/save-invoice', {
+            invoiceNumber,
+            invoiceValue,
+            emissionDate,
+            dueDate,
+        });
+
+        // Arquivo fica em memória para o próximo passo (envio ao Sienge)
+        if (selectedFile) {
+            setLocalStorage('hasInvoiceFile', true);
+        }
+
         window.location.href = './payment-data.html';
     } catch (err) {
         console.error('Erro ao salvar nota:', err);
