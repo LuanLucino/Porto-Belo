@@ -1,3 +1,15 @@
+function showMessage(text, type = 'info') {
+    const box = document.getElementById('message');
+    box.textContent = text;
+    box.className = 'message-box ' + type; // aplica a cor
+    box.style.display = 'block';
+
+    // Esconde automaticamente depois de 3 segundos
+    setTimeout(() => {
+        box.style.display = 'none';
+    }, 3000);
+}
+
 function calculateCheckDigit(numbers) {
     let sum = 0;
     let pos = numbers.length - 7;
@@ -50,7 +62,7 @@ async function sendCNPJ() {
     const { value: typedCNPJ, error } = validateCNPJ(inputCNPJ); // Valida o CNPJ digitado 
 
     if (error) {
-        alert(error); // Exemplo: "CNPJ inválido."
+        showMessage(error); // Exemplo: "CNPJ inválido."
         return;       // Para aqui, não continua para a consulta na API
     }
 
@@ -61,7 +73,7 @@ async function sendCNPJ() {
         // CNPJ sem cadastro no Sienge
         // Se não houver dados retornados ou não existir supplierData, significa que não está cadastrado
         if (!data || !data.supplierData) {
-            alert('CNPJ não cadastrado no Sienge. Entre em contato com o suporte.');
+            showMessage('CNPJ não cadastrado no Sienge. Entre em contato com o suporte.');
             return; // Para aqui, não continua para salvar nem redirecionar
         }
 
@@ -77,10 +89,10 @@ async function sendCNPJ() {
 
         //  Se a mensagem de erro indicar "not found", significa que não está cadastrado no Sienge
         if (err.message.includes('not found')) {
-            alert('CNPJ não cadastrado no Sienge. Entre em contato com o suporte.');
+            showMessage('CNPJ não cadastrado no Sienge. Entre em contato com o suporte.');
         } else {
             // Para outros erros técnicos, mostra mensagem genérica com detalhes
-            alert(err.message);
+            showMessage(err.message);
         }
     }
 }
