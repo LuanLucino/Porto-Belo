@@ -36,9 +36,9 @@ class AsyncSiengeGateway {
     }
   }
 
-  async getContracts() {
+  async getContracts(offset = null, limit = null) {
     try {
-      const response = await this.client.get('/supply-contracts/all');
+      const response = await this.client.get('/supply-contracts/all', { params: { offset, limit } });
       const list = Array.isArray(response.data?.results) ? response.data.results : [];
       return list.map(SiengeUtils.adaptContract);
     } catch (err) {
@@ -74,7 +74,7 @@ class MockSiengeGateway {
     };
   }
 
-  async getContracts() {
+  async getContracts(offset = null, limit = null) {
     return [
       { id: 102, code: 'CTR-102', contractName: 'FORNECIMENTO DE CONCRETO', constructionName: 'EDIFICIO PORTO BELO', technicalRetention: 'R$ 500,00' },
       { id: 205, code: 'CTR-205', contractName: 'SERVIÇOS DE PINTURA', constructionName: 'RESIDENCIAL MARINA', technicalRetention: 'R$ 0,00' },
