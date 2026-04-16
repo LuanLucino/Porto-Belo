@@ -46,6 +46,12 @@ class SiengeUtils {
         };
     }
 
+    static adaptContractItems(raw) {
+        return {
+
+        }
+    }
+
 
     static httpError(statusCode, message) {
         const error = new Error(message);

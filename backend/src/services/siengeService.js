@@ -83,6 +83,29 @@ class AsyncSiengeGateway {
       throw mapped;
     }
   }
+
+  async getContractItems(documentId, contractNumber, buildingId, buildingUnitId) {
+    const params = {
+      documentId: documentId,
+      contractNumber: contractNumber,
+      buildingId: buildingId,
+      buildingUnitId: buildingUnitId,
+
+    }
+    const response = await this.client.get("/supply-contracts/items", { params })
+
+  }
+  static getBuildingConstructIds(documentId, contractNumber) {
+    const params = {
+      documentId: documentId,
+      contractNumber: contractNumber,
+    }
+    // This endpoint returns an array of building ids that are linked to the contract
+    const response = await this.client.get("/supply-contracts/buildings", { params })
+    const buildingIds = Array.isArray(response.data?.results) ? response.data.results : [];
+    return buildingIds;
+  }
+
   async createMeasurement() {
     throw new Error('Not implemented yet');
   }
