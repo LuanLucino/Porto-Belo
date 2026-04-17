@@ -105,8 +105,27 @@ class AsyncSiengeGateway {
     const buildingIds = Array.isArray(response.data?.results) ? response.data.results : [];
     return buildingIds.map(SiengeUtils.adaptContractItems);
   }
-  async createMeasurement() {
-    throw new Error('Not implemented yet');
+  async createMeasurement(documentId, contractNumber, buildingId, body) {
+    const params = {
+      documentId: documentId,
+      contractNumber: contractNumber,
+      buildingId: buildingId,
+    }
+    const json = {
+      measurementDate: raw.measurementDate,
+      dueDate: raw.dueDate,
+      notes: raw.notes,
+      makeUnauthorized: true,
+      items: [
+        {
+          buildingUnitId: raw.buildingUnitId,
+          itemId: raw.itemId,
+          measuredLaborValue: raw.measuredLaborValue
+        }
+      ]
+    }
+    const result = await this.client.post("/supply-contracts/measurements", { params }, json)
+    return result.data;
   }
 }
 
