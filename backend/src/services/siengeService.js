@@ -112,20 +112,24 @@ class AsyncSiengeGateway {
       buildingId: buildingId,
     }
     const json = {
-      measurementDate: raw.measurementDate,
-      dueDate: raw.dueDate,
-      notes: raw.notes,
+      measurementDate: body.measurementDate,
+      dueDate: body.dueDate,
+      notes: body.notes,
       makeUnauthorized: true,
-      items: [
-        {
-          buildingUnitId: raw.buildingUnitId,
-          itemId: raw.itemId,
-          measuredLaborValue: raw.measuredLaborValue
-        }
-      ]
+      items: (body.items ?? []).map(item => ({
+        buildingUnitId: item.buildingUnitId,
+        itemId: item.itemId,
+        measuredLaborValue: item.measuredLaborValue,
+      })),
     }
-    const result = await this.client.post("/supply-contracts/measurements", { params }, json)
-    return result.data;
+    try {
+      const response = await this.client.post("/supply-contracts/measurements", json, { params });
+      return response.data ?? null;
+    } catch (err) {
+      const mapped = SiengeUtils.mapSiengeError(err, 'Falha ao criar medição no Sienge.');
+      if (mapped === null) throw SiengeUtils.httpError(404, 'Contrato não encontrado no Sienge.');
+      throw mapped;
+    }
   }
 }
 
