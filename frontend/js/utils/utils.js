@@ -24,3 +24,8 @@ function getCachedData(key) {
     }
     return entry.data;
 }
+
+function toSiengeQuantity(nfValue, contractValue) {
+    const quantity = parseFloat((nfValue / contractValue).toFixed(4));
+    return isNaN(quantity) ? 0 : quantity;
+}
