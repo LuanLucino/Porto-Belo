@@ -27,3 +27,19 @@ function prosseguirParaFinalizar() {
 }
 
 fillHeader();
+
+
+function togglePaymentSection(value) {
+  var sections = ['section-ticket', 'section-transfer', 'section-installments'];
+  sections.forEach(function(id) {
+    document.getElementById(id).style.display = 'none';
+  });
+
+  if (value === 'ticket') {
+    document.getElementById('section-ticket').style.display = '';
+  } else if (value === 'transfer') {
+    document.getElementById('section-transfer').style.display = '';
+  } else if (value === 'installments') {
+    document.getElementById('section-installments').style.display = '';
+  }
+}
