@@ -26,6 +26,9 @@ function getCachedData(key) {
 }
 
 function toSiengeQuantity(nfValue, contractValue) {
-    const quantity = parseFloat((nfValue / contractValue).toFixed(4));
-    return isNaN(quantity) ? 0 : quantity;
+    const nf = parseFloat(nfValue);
+    const total = parseFloat(contractValue);
+    if (!Number.isFinite(nf) || !Number.isFinite(total) || total <= 0) return 0;
+    const quantity = parseFloat((nf / total).toFixed(4));
+    return Number.isFinite(quantity) ? quantity : 0;
 }

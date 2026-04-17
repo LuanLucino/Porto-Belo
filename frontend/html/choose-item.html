@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Porto Belo - Portal de Pagamento de Fornecedores</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="https://portal.portobeloweb.com.br/favicon.png">
+
+    <link rel="stylesheet" href="../style/style.css">
+    <link rel="stylesheet" href="../style/preload.css">
+
+    <link rel="stylesheet" href="../style/choose-contract.css">
+</head>
+
+<body>
+    <div id="__next">
+        <div id="root">
+            <div class="styles_container__lAhF8">
+                <div class="styles_wrapperLogged__vU1Lb">
+
+                    <header class="styles_container__2Y_S2">
+                        <header>
+                            <img alt="Logo porto belo" width="218" height="94" src="../img/logo.png" />
+                            <h1>PAGAMENTO DE FORNECEDOR</h1>
+                        </header>
+
+                        <section class="flex justify-between">
+                            <div>
+                                <p><strong>Razão Social: </strong><span id="razao-social-val"></span></p>
+                                <p><strong>Nome Fantasia: </strong><span id="nome-fantasia-val"></span></p>
+                            </div>
+                            <p><strong>CNPJ: </strong><span id="cnpj-val"></span></p>
+                        </section>
+                    </header>
+
+                    <main>
+                        <div class="styles_container__2UcOS">
+                            <div class="mt-4 mb-2 rounded border border-red-600 py-2">
+                                <p class="text-center text-xl font-bold">Itens do Contrato</p>
+                            </div>
+
+                            <div class="flex">
+                                <p><strong>Código do contrato:</strong> <span id="codigo-contrato-val"></span></p>
+                            </div>
+
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th class="text-start">Descrição</th>
+                                        <th>Quantidade</th>
+                                        <th>Unidade</th>
+                                        <th>Preço Unitário</th>
+                                        <th>Valor Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabela-itens-body">
+                                </tbody>
+                            </table>
+
+                            <div class="ml-auto mt-auto flex max-w-lg space-x-4">
+                                <button onclick="window.history.back()"
+                                    class="w-full rounded px-16 py-2 text-white transition-colors bg-warning text-2xl font-semibold hover:bg-warning-hover"
+                                    type="button">
+                                    <p>Anterior</p>
+                                </button>
+                                <button id="btn-proxima"
+                                    class="w-full rounded bg-success px-16 py-2 text-white transition-colors text-2xl font-semibold opacity-60"
+                                    type="button" disabled>
+                                    <p>Próxima</p>
+                                </button>
+                            </div>
+                        </div>
+                    </main>
+
+                    <footer class="mt-auto flex items-center">
+                        <img alt="Logo porto belo" width="218" height="94" class="h-12 w-24" src="../img/logo.png" />
+                        <div class="ml-32 text-center text-xs opacity-60">
+                            <p>@2022-2022 Construindo Patrimônios</p>
+                            <p>Porto Belo Construções - CNPJ</p>
+                        </div>
+                    </footer>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/utils/utils.js"></script>
+    <script src="../js/choose-item.js"></script>
+</body>
+
+</html>

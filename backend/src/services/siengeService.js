@@ -90,20 +90,29 @@ class AsyncSiengeGateway {
       contractNumber: contractNumber,
       buildingId: buildingId,
       buildingUnitId: buildingUnitId,
-
     }
-    const response = await this.client.get("/supply-contracts/items", { params })
-
+    try {
+      const response = await this.client.get("/supply-contracts/items", { params });
+      const items = Array.isArray(response.data?.results) ? response.data.results : [];
+      return items.map(SiengeUtils.adaptContractItem);
+    } catch (err) {
+      const mapped = SiengeUtils.mapSiengeError(err, 'Falha ao consultar itens do contrato no Sienge.');
+      if (mapped === null) return [];
+      throw mapped;
+    }
   }
-  async getBuildingConstructIds(documentId, contractNumber) {
-    const params = {
-      documentId: documentId,
-      contractNumber: contractNumber,
+
+  async getContractBuildings(documentId, contractNumber) {
+    const params = { documentId, contractNumber };
+    try {
+      const response = await this.client.get("/supply-contracts/buildings", { params });
+      const results = Array.isArray(response.data?.results) ? response.data.results : [];
+      return results.map(SiengeUtils.adaptContractBuilding);
+    } catch (err) {
+      const mapped = SiengeUtils.mapSiengeError(err, 'Falha ao consultar edifícios do contrato no Sienge.');
+      if (mapped === null) return [];
+      throw mapped;
     }
-    // This endpoint returns an array of building ids that are linked to the contract
-    const response = await this.client.get("/supply-contracts/buildings", { params })
-    const buildingIds = Array.isArray(response.data?.results) ? response.data.results : [];
-    return buildingIds.map(SiengeUtils.adaptContractItems);
   }
   async createMeasurement(documentId, contractNumber, buildingId, body) {
     const params = {
@@ -119,7 +128,7 @@ class AsyncSiengeGateway {
       items: (body.items ?? []).map(item => ({
         buildingUnitId: item.buildingUnitId,
         itemId: item.itemId,
-        measuredLaborValue: item.measuredLaborValue,
+        measuredQuantity: item.measuredQuantity,
       })),
     }
     try {
@@ -157,6 +166,23 @@ class MockSiengeGateway {
       { id: 2, name: 'CONSTRUTORA MARINA LTDA', cnpj: '98.765.432/0001-10', tradeName: 'MARINA' },
       { id: 3, name: 'CONSTRUTORA SOLARES LTDA', cnpj: '11.223.344/0001-55', tradeName: 'SOLARES' },
     ];
+  }
+
+  async getContractItems(documentId, contractNumber, buildingId, buildingUnitId) {
+    return [
+      { id: 1, description: 'SERVIÇOS DE CONSULTORIA — fundação', quantity: 1, unit: 'vb', laborPrice: 200, materialPrice: 0, unitPrice: 200, totalPrice: 200, buildingUnitId: 1, sheetItemId: 5, wbsCode: '00.000.000.001' },
+      { id: 2, description: 'SERVIÇOS DE CONSULTORIA — alvenaria', quantity: 1, unit: 'vb', laborPrice: 300, materialPrice: 0, unitPrice: 300, totalPrice: 300, buildingUnitId: 1, sheetItemId: 6, wbsCode: '00.000.000.002' },
+    ];
+  }
+
+  async getContractBuildings(documentId, contractNumber) {
+    return [
+      { buildingId: 99991, name: 'Obra exemplo', buildingUnitId: 1, buildingUnits: [{ id: 1 }] },
+    ];
+  }
+
+  async createMeasurement(documentId, contractNumber, buildingId, body) {
+    return { id: Math.floor(Math.random() * 10000), status: 'MOCK_CREATED', ...body };
   }
 }
 

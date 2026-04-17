@@ -54,3 +54,41 @@ exports._getContracts = async (req, res, next) => {
     return next(err);
   }
 };
+
+exports._getContractBuildings = async (req, res, next) => {
+  try {
+    const { documentId, contractNumber } = req.query;
+    if (!documentId) {
+      return res.status(400).json({ error: 'documentId é obrigatório.' });
+    }
+    if (!contractNumber) {
+      return res.status(400).json({ error: 'contractNumber é obrigatório.' });
+    }
+    const contractBuildings = await siengeGateway.getContractBuildings(documentId, contractNumber);
+    return res.json({ contractBuildings });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+exports._getContractItems = async (req, res, next) => {
+  try {
+    const { documentId, contractNumber, buildingId, buildingUnitId } = req.query;
+    if (!documentId) {
+      return res.status(400).json({ error: 'documentId é obrigatório.' });
+    }
+    if (!contractNumber) {
+      return res.status(400).json({ error: 'contractNumber é obrigatório.' });
+    }
+    if (!buildingId) {
+      return res.status(400).json({ error: 'buildingId é obrigatório.' });
+    }
+    if (!buildingUnitId) {
+      return res.status(400).json({ error: 'buildingUnitId é obrigatório.' });
+    }
+    const contractItems = await siengeGateway.getContractItems(documentId, contractNumber, buildingId, buildingUnitId);
+    return res.json({ contractItems });
+  } catch (err) {
+    return next(err);
+  }
+};

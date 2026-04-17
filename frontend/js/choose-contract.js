@@ -60,7 +60,7 @@ function buildGoToNextStep(contracts) {
         const selectedContract = contracts[idx];
 
         setLocalStorage('selectedContract', selectedContract);
-        window.location.href = 'invoice-data.html';
+        window.location.href = 'choose-item.html';
     };
 }
 

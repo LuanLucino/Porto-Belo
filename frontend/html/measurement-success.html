@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <title>Porto Belo - Medição enviada</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="https://portal.portobeloweb.com.br/favicon.png" />
+  <link rel="stylesheet" href="../style/style.css" />
+  <link rel="stylesheet" href="../style/preload.css" />
+  <link rel="stylesheet" href="../style/finalize-payment.css">
+</head>
+
+<body>
+  <div id="__next">
+    <div id="root">
+      <div class="styles_container__lAhF8">
+        <div class="styles_wrapperLogged__vU1Lb">
+          <header class="styles_container__2Y_S2">
+            <header>
+              <img alt="Logo porto belo" width="218" height="94" src="../img/logo.png" />
+              <h1>PAGAMENTO DE FORNECEDOR</h1>
+            </header>
+            <section class="flex justify-between">
+              <div>
+                <p><strong>Razão Social: </strong><span id="razao-social-val"></span></p>
+                <p><strong>Nome Fantasia: </strong><span id="nome-fantasia-val"></span></p>
+              </div>
+              <p><strong>CNPJ: </strong><span id="cnpj-val"></span></p>
+            </section>
+          </header>
+
+          <main>
+            <div class="styles_container__kgcQ0">
+              <div class="mt-4 mb-2 rounded border border-green-600 py-2">
+                <p class="text-center text-xl font-bold">Medição Enviada com Sucesso</p>
+              </div>
+
+              <section>
+                <p class="mb-4"><strong>Nº da medição no Sienge:</strong> <span id="medicao-id-val"></span></p>
+                <div class="grid grid-cols-3 gap-y-2">
+                  <p><strong>Código do contrato:</strong> <span id="codigo-contrato-val"></span></p>
+                  <p><strong>Obra:</strong> <span id="obra-val"></span></p>
+                  <p><strong>Valor da NF:</strong> <span id="valor-val"></span></p>
+                  <p><strong>Número da Nota Fiscal:</strong> <span id="numero-nota-val"></span></p>
+                  <p><strong>Data de Emissão:</strong> <span id="data-emissao-val"></span></p>
+                  <p><strong>Data de Vencimento:</strong> <span id="data-vencimento-val"></span></p>
+                </div>
+              </section>
+
+              <section class="mt-4">
+                <p class="font-bold">Item Medido</p>
+                <div class="grid grid-cols-3 gap-y-2">
+                  <p><strong>Descrição:</strong> <span id="item-descricao-val"></span></p>
+                  <p><strong>Quantidade medida:</strong> <span id="quantidade-medida-val"></span></p>
+                  <p><strong>Unidade:</strong> <span id="item-unidade-val"></span></p>
+                </div>
+              </section>
+
+              <section class="mt-4">
+                <p class="font-bold">Dados de Pagamento</p>
+                <div class="grid grid-cols-3 gap-y-2">
+                  <p><strong>Tipo de Pagamento:</strong> <span id="tipo-pagamento-val"></span></p>
+                  <p><strong>Nome do Favorecido:</strong> <span id="nome-favorecido-val"></span></p>
+                  <p><strong>CPF/CNPJ do Favorecido:</strong> <span id="cpf-cnpj-favorecido-val"></span></p>
+                  <p><strong>Banco:</strong> <span id="banco-val"></span></p>
+                  <p><strong>Agência:</strong> <span id="agencia-val"></span></p>
+                  <p><strong>Conta:</strong> <span id="conta-val"></span></p>
+                  <p><strong>Tipo:</strong> <span id="tipo-conta-val"></span></p>
+                </div>
+              </section>
+
+              <div class="ml-auto mt-8 flex max-w-lg space-x-4">
+                <button
+                  class="w-full rounded bg-success px-16 py-2 text-white transition-colors hover:bg-success-hover text-2xl font-semibold"
+                  type="button" onclick="finalizar()">
+                  <p>Finalizar</p>
+                </button>
+              </div>
+            </div>
+          </main>
+
+          <footer class="mt-auto flex items-center">
+            <img alt="Logo porto belo" width="218" height="94" class="h-12 w-24" src="../img/logo.png" />
+            <div class="ml-32 text-center text-xs opacity-60">
+              <p>@2022-2026 Construindo Patrimônios</p>
+              <p>Porto Belo Construções - CNPJ 03.701.380/0002-60</p>
+            </div>
+          </footer>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/utils/utils.js"></script>
+  <script src="../js/measurement-success.js"></script>
+</body>
+
+</html>

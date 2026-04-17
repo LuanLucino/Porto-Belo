@@ -38,30 +38,51 @@ function fillPayment() {
 async function enviarMedicao() {
     const contract = getLocalStorage('selectedContract');
     const invoice = getLocalStorage('invoiceData');
+    const item = getLocalStorage('selectedItem');
 
-    if (!contract || !invoice) {
+    if (!contract || !invoice || !item) {
         alert('Dados incompletos. Volte e preencha as etapas anteriores.');
         return;
     }
 
     const today = new Date().toISOString().split('T')[0];
+    const invoiceValue = parseFloat(invoice.invoiceValue) || 0;
+    const measuredQuantity = toSiengeQuantity(invoiceValue, contract.totalValue);
+
+    if (!measuredQuantity) {
+        alert(`Não foi possível calcular a quantidade medida (valorNF=${invoiceValue}, totalContrato=${contract.totalValue}).`);
+        return;
+    }
+
     const body = {
         measurementDate: invoice.emissionDate || today,
         dueDate: invoice.dueDate,
         notes: `NF ${invoice.invoiceNumber}`,
-        items: [],
+        items: [
+            {
+                buildingUnitId: item.buildingUnitId,
+                itemId: item.id,
+                measuredQuantity,
+            },
+        ],
     };
 
+    if (!contract.documentId || !contract.code || !contract.buildingId) {
+        alert(`Contrato sem dados completos (documentId=${contract.documentId}, contractNumber=${contract.code}, buildingId=${contract.buildingId}).`);
+        return;
+    }
+
     const query = new URLSearchParams({
-        documentId: 'CT',
+        documentId: contract.documentId,
         contractNumber: contract.code,
         buildingId: contract.buildingId,
     });
 
     try {
         const result = await window.api.post(`/create-measurement?${query}`, body);
-        alert('Medição enviada com sucesso!');
-        console.log('Medição criada:', result);
+        setLocalStorage('measurementResult', result?.measurement ?? result ?? {});
+        setLocalStorage('measuredQuantity', measuredQuantity);
+        window.location.href = './measurement-success.html';
     } catch (err) {
         console.error('Erro ao enviar medição:', err);
         alert(err.message);
