@@ -1,5 +1,6 @@
 // Page script for invoice-data.html
-// Collects invoice form fields, sends to backend, and navigates to the next step.
+// Lê o contrato selecionado na etapa anterior, coleta os dados da NF
+// e persiste em localStorage para uso na etapa final (criação da medição no Sienge).
 
 let selectedFile = null;
 
@@ -11,6 +12,15 @@ function fillHeader() {
     document.getElementById('cnpj-val').textContent = supplier.cnpj ?? '';
 }
 
+function fillContractInfo() {
+    const contract = getLocalStorage('selectedContract');
+    if (!contract) {
+        alert('Nenhum contrato selecionado. Volte e selecione um contrato.');
+        return;
+    }
+    document.getElementById('codigo-contrato-val').textContent = contract.code ?? '';
+}
+
 function setupFileInput() {
     document.getElementById('invoiceFile').addEventListener('change', (e) => {
         selectedFile = e.target.files[0] || null;
@@ -18,7 +28,7 @@ function setupFileInput() {
     });
 }
 
-async function sendInvoiceData() {
+function sendInvoiceData() {
     const invoiceNumber = document.getElementById('numeroNota')?.value || '';
     const invoiceValue = document.getElementById('valorNotaFiscal')?.value || '';
     const emissionDate = document.getElementById('dataEmissao')?.value || '';
@@ -28,26 +38,22 @@ async function sendInvoiceData() {
         alert('Por favor, preencha o número da nota.');
         return;
     }
-
-    try {
-        await window.api.post('/save-invoice', {
-            invoiceNumber,
-            invoiceValue,
-            emissionDate,
-            dueDate,
-        });
-
-        // Arquivo fica em memória para o próximo passo (envio ao Sienge)
-        if (selectedFile) {
-            setLocalStorage('hasInvoiceFile', true);
-        }
-
-        window.location.href = './payment-data.html';
-    } catch (err) {
-        console.error('Erro ao salvar nota:', err);
-        alert(err.message);
+    if (!invoiceValue) {
+        alert('Por favor, preencha o valor da nota.');
+        return;
     }
+
+    setLocalStorage('invoiceData', {
+        invoiceNumber,
+        invoiceValue,
+        emissionDate,
+        dueDate,
+        hasFile: !!selectedFile,
+    });
+
+    window.location.href = './payment-data.html';
 }
 
 fillHeader();
+fillContractInfo();
 setupFileInput();

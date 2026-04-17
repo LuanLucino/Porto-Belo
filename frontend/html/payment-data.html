@@ -29,10 +29,10 @@
             </header>
             <section class="flex justify-between">
               <div>
-                <p><strong>Razão Social: </strong></p>
-                <p><strong>Nome Fantasia: </strong></p>
+                <p><strong>Razão Social: </strong><span id="razao-social-val"></span></p>
+                <p><strong>Nome Fantasia: </strong><span id="nome-fantasia-val"></span></p>
               </div>
-              <p><strong>CNPJ: </strong></p>
+              <p><strong>CNPJ: </strong><span id="cnpj-val"></span></p>
             </section>
           </header>
 
@@ -809,7 +809,9 @@
                                 <option value="Conta Poupança">Conta Poupança</option>
                               </select>
                             </div>
-                        </div>
+                          </div>
+                        </fieldset>
+                      </form>
                   </section>
                   <!-- Seção de anexos -->
                   <fieldset class="mt-4">
@@ -885,7 +887,8 @@
 
   <script src="../js/config.js"></script>
   <script src="../js/api.js"></script>
-  <script src="../js/invoice-data.js"></script>
+  <script src="../js/utils/utils.js"></script>
+  <script src="../js/payment-data.js"></script>
 </body>
 
 </html>
