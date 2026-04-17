@@ -9,8 +9,8 @@
 
     <link rel="stylesheet" href="../style/style.css">
     <link rel="stylesheet" href="../style/preload.css">
-    
-    <!-- <link rel="stylesheet" href="../style/choose-contract.css"> -->
+
+    <link rel="stylesheet" href="../style/choose-contract.css">
 </head>
 
 <body>
@@ -37,20 +37,25 @@
                     <main>
                         <div class="styles_container__2UcOS">
                             <div class="mt-4 mb-2 rounded border border-red-600 py-2">
-                                <p class="text-center text-xl font-bold">Contratos Vinculados</p>
+                                <p class="text-center text-xl font-bold">Itens do Contrato</p>
+                            </div>
+
+                            <div class="flex">
+                                <p><strong>Código do contrato:</strong> <span id="codigo-contrato-val"></span></p>
                             </div>
 
                             <table>
                                 <thead>
                                     <tr>
                                         <th></th>
-                                        <th class="text-start">Nome da Obra</th>
-                                        <th>Nome do Contrato</th>
-                                        <th>Código do Contrato</th>
-                                        <th>Retenção Técnica</th>
+                                        <th class="text-start">Descrição</th>
+                                        <th>Quantidade</th>
+                                        <th>Unidade</th>
+                                        <th>Preço Unitário</th>
+                                        <th>Valor Total</th>
                                     </tr>
                                 </thead>
-                                <tbody id="tabela-contratos-body">
+                                <tbody id="tabela-itens-body">
                                 </tbody>
                             </table>
 
@@ -85,7 +90,7 @@
     <script src="../js/config.js"></script>
     <script src="../js/api.js"></script>
     <script src="../js/utils/utils.js"></script>
-    <script src="../js/choose-contract.js"></script>
+    <script src="../js/choose-item.js"></script>
 </body>
 
 </html>

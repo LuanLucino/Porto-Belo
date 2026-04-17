@@ -34,12 +34,10 @@
             </header>
             <section class="flex justify-between">
               <div>
-                <p>
-                  <strong>Razão Social: </strong>
-                </p>
-                <p><strong>Nome Fantasia: </strong></p>
+                <p><strong>Razão Social: </strong><span id="razao-social-val"></span></p>
+                <p><strong>Nome Fantasia: </strong><span id="nome-fantasia-val"></span></p>
               </div>
-              <p><strong>CNPJ: </strong></p>
+              <p><strong>CNPJ: </strong><span id="cnpj-val"></span></p>
             </section>
           </header>
           <main>
@@ -51,29 +49,23 @@
               </div>
               <section>
                 <div class="grid grid-cols-3 gap-y-2">
-                  <p><strong>Código do contrato:</strong></p>
+                  <p><strong>Código do contrato:</strong> <span id="codigo-contrato-val"></span></p>
                   <p></p>
-                  <p><strong>Valor:</strong></p>
-                  <p><strong>Número da Nota Fiscal:</strong></p>
-                  <p><strong>Data de Emissão:</strong></p>
-                  <p><strong>Data de Vencimento:</strong></p>
+                  <p><strong>Valor:</strong> <span id="valor-val"></span></p>
+                  <p><strong>Número da Nota Fiscal:</strong> <span id="numero-nota-val"></span></p>
+                  <p><strong>Data de Emissão:</strong> <span id="data-emissao-val"></span></p>
+                  <p><strong>Data de Vencimento:</strong> <span id="data-vencimento-val"></span></p>
                 </div>
               </section>
               <section>
-                <p>
-                  <strong>Tipo de Pagamento:</strong>
-                </p>
+                <p><strong>Tipo de Pagamento:</strong> <span id="tipo-pagamento-val"></span></p>
                 <div class="styles_container__uacOG">
-                  <p><strong>Nome do Favorecido:</strong></p>
-                  <p>
-                    <strong>CPF/CNPJ do Favorecido:</strong>
-                  </p>
-                  <p>
-                    <strong>Banco:</strong>
-                  </p>
-                  <p><strong>Agência:</strong></p>
-                  <p><strong>Conta:</strong></p>
-                  <p><strong>Tipo:</strong></p>
+                  <p><strong>Nome do Favorecido:</strong> <span id="nome-favorecido-val"></span></p>
+                  <p><strong>CPF/CNPJ do Favorecido:</strong> <span id="cpf-cnpj-favorecido-val"></span></p>
+                  <p><strong>Banco:</strong> <span id="banco-val"></span></p>
+                  <p><strong>Agência:</strong> <span id="agencia-val"></span></p>
+                  <p><strong>Conta:</strong> <span id="conta-val"></span></p>
+                  <p><strong>Tipo:</strong> <span id="tipo-conta-val"></span></p>
                 </div>
                 <fieldset class="mt-8">
                   <legend>Anexos</legend>
@@ -106,7 +98,7 @@
                   <p>Anterior</p>
                 </button><button
                   class="w-full rounded bg-success px-16 py-2 text-white transition-colors hover:bg-success-hover text-2xl font-semibold"
-                  type="submit" form="formRef">
+                  type="button" onclick="enviarMedicao()">
                   <p>Enviar</p>
                 </button>
               </div>
@@ -161,7 +153,8 @@
 
   <script src="../js/config.js"></script>
   <script src="../js/api.js"></script>
-  <script src="../js/invoice-data.js"></script>
+  <script src="../js/utils/utils.js"></script>
+  <script src="../js/finalize-payment.js"></script>
 </body>
 
 </html>

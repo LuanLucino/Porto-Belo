@@ -23,7 +23,7 @@ function renderTable(contracts) {
     contracts.forEach((item, index) => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td><input type="checkbox" class="contrato-item" data-index="${index}"></td>
+            <td><input type="radio" name="contrato-selecionado" class="contrato-item" data-index="${index}"></td>
             <td class="text-start">${item.constructionName ?? ''}</td>
             <td>${item.contractName ?? ''}</td>
             <td>${item.code ?? ''}</td>
@@ -47,37 +47,46 @@ function updateNextButton() {
 }
 
 function handleSelectionChange(event) {
-    if (!event.target.classList.contains('contrato-item') && event.target.id !== 'master-checkbox') {
-        return;
-    }
-
-    if (event.target.id === 'master-checkbox') {
-        document.querySelectorAll('.contrato-item').forEach((c) => { c.checked = event.target.checked; });
-    }
-
+    if (!event.target.classList.contains('contrato-item')) return;
     updateNextButton();
 }
 
 function buildGoToNextStep(contracts) {
     return function goToNextStep() {
-        const selectedContracts = [];
-        document.querySelectorAll('.contrato-item:checked').forEach((check) => {
-            const idx = check.getAttribute('data-index');
-            selectedContracts.push(contracts[idx]);
-        });
+        const checked = document.querySelector('.contrato-item:checked');
+        if (!checked) return;
 
-        localStorage.setItem('selectedContracts', JSON.stringify(selectedContracts));
-        window.location.href = 'invoice-data.html';
+        const idx = checked.getAttribute('data-index');
+        const selectedContract = contracts[idx];
+
+        setLocalStorage('selectedContract', selectedContract);
+        window.location.href = 'choose-item.html';
     };
 }
 
+async function getSupplierContracts(supplierId) {
+    const cacheKey = 'supplierContracts_' + supplierId;
+    const cached = getCachedData(cacheKey);
+    if (cached) return cached;
+
+    const data = await window.api.get('/get-contracts?supplierId=' + encodeURIComponent(supplierId));
+    const contracts = data?.supplierContracts ?? [];
+    setCachedData(cacheKey, contracts, 15);
+    return contracts;
+}
+
 async function init() {
-    fillHeader(getSupplierFromStorage());
+    const supplier = getSupplierFromStorage();
+    fillHeader(supplier);
+
+    if (!supplier?.id) {
+        alert('Fornecedor não encontrado. Volte e informe o CNPJ.');
+        return;
+    }
 
     let contracts = [];
     try {
-        const data = await window.api.get('/get-contracts');
-        contracts = data.supplierContracts ?? [];
+        contracts = await getSupplierContracts(supplier.id);
     } catch (err) {
         console.error('Erro ao carregar contratos:', err);
         alert(err.message);

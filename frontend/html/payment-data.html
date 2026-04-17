@@ -16,7 +16,6 @@
 
   <noscript data-n-css=""></noscript>
 
-
 <body class="">
   <div id="__next">
     <div class="Toastify"></div>
@@ -32,10 +31,10 @@
             </header>
             <section class="flex justify-between">
               <div>
-                <p><strong>Razão Social: </strong></p>
-                <p><strong>Nome Fantasia: </strong></p>
+                <p><strong>Razão Social: </strong><span id="razao-social-val"></span></p>
+                <p><strong>Nome Fantasia: </strong><span id="nome-fantasia-val"></span></p>
               </div>
-              <p><strong>CNPJ: </strong></p>
+              <p><strong>CNPJ: </strong><span id="cnpj-val"></span></p>
             </section>
           </header>
 
@@ -201,6 +200,7 @@
                               value="382 - FIDÚCIA SOCIEDADE DE CRÉDITO AO MICROEMPREENDEDOR E À EMPRESA DE PEQUENO PORTE LTDA.">
                               382 - FIDÚCIA SOCIEDADE DE CRÉDITO AO MICROEMPREENDEDOR E À EMPRESA DE PEQUENO PORTE LTDA.
                             </option>
+
                             <option value="64 - GOLDMAN SACHS DO BRASIL BANCO MÚLTIPLO S.A.">64 - GOLDMAN SACHS DO
                               BRASIL BANCO MÚLTIPLO S.A.</option>
                             <option
@@ -811,7 +811,9 @@
                                 <option value="Conta Poupança">Conta Poupança</option>
                               </select>
                             </div>
-                        </div>
+                          </div>
+                        </fieldset>
+                      </form>
                   </section>
                   <!-- Seção de anexos -->
                   <fieldset class="mt-4">
@@ -887,7 +889,8 @@
 
   <script src="../js/config.js"></script>
   <script src="../js/api.js"></script>
-  <script src="../js/invoice-data.js"></script>
+  <script src="../js/utils/utils.js"></script>
+  <script src="../js/payment-data.js"></script>
 </body>
 
 </html>
