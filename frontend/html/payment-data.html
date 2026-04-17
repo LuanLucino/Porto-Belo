@@ -54,7 +54,7 @@
                 <form class="mt-8">
                   <div class="styles_container__vlAK4">
                     <label for="payment_method">Tipo de Pagamento</label>
-                    <select id="payment_method" name="payment_method" autocomplete="off">
+                    <select id="payment_method" name="payment_method" autocomplete="off" onchange="togglePaymentSection(this.value)">
                       <option value="" hidden>Selecione um método de pagamento</option>
                       <option value="ticket">Boleto</option>
                       <option value="transfer">Transferência Eletrônica</option>
@@ -63,8 +63,68 @@
                   </div>
                 </form>
 
-                <!-- Dados bancários -->
-                <div class="styles_container__fQ7ZZ">
+                <!-- Seção: Boleto -->
+                <div id="section-ticket" class="styles_container__dEHhQ" style="display:none">
+                  <section>
+                    <form id="formRefBoleto">
+                      <fieldset>
+                        <legend>Dados do Boleto</legend>
+                        <div class="space-y-4">
+                          <div class="styles_container__vlAK4">
+                            <label for="linhaDigitavelBoletoUnico">Linha Digitável</label>
+                            <input id="linhaDigitavelBoletoUnico" name="linhaDigitavelBoletoUnico" type="text" class=" " value="" />
+                          </div>
+                          <div class="styles_container__vlAK4">
+                            <label for="codigoBarrasBoletoUnico">Código de Barras</label>
+                            <input id="codigoBarrasBoletoUnico" name="codigoBarrasBoletoUnico" type="text" class=" " value="" />
+                          </div>
+                          <div class="styles_container__SgQi3">
+                            <label for="observacaoBoleto">Observações</label>
+                            <textarea id="observacaoBoleto" name="observacaoBoleto" class="undefined"></textarea>
+                          </div>
+                        </div>
+                        <div class="mt-8 flex items-center">
+                          <button class="rounded py-2 text-white transition-colors w-auto bg-tertiary px-8 text-2xl hover:bg-tertiary-hover" type="button">
+                            <p>Anexar Boleto</p>
+                          </button>
+                        </div>
+                      </fieldset>
+                    </form>
+                  </section>
+                </div>
+
+                <!-- Seção: Pagamento Parcelado -->
+                <div id="section-installments" class="styles_container__ds2L_" style="display:none">
+                  <section>
+                    <form id="formRefParcelado">
+                      <fieldset>
+                        <legend>Dados do Pagamento Parcelado</legend>
+                        <table class="styles_table__iaDYK">
+                          <thead>
+                            <tr>
+                              <th></th>
+                              <th>Parcela</th>
+                              <th>Data de Vencimento</th>
+                              <th>Valor</th>
+                              <th>Linha Digitável (LD)</th>
+                              <th>Código Barras (CB)</th>
+                              <th class="w-[18%]">Boleto</th>
+                            </tr>
+                          </thead>
+                          <tbody></tbody>
+                        </table>
+                        <div class="mt-8 flex">
+                          <button class="rounded py-2 text-white transition-colors ml-auto w-auto bg-tertiary px-8 text-2xl hover:bg-tertiary-hover" type="button">
+                            <p>Incluir Parcela</p>
+                          </button>
+                        </div>
+                      </fieldset>
+                    </form>
+                  </section>
+                </div>
+
+                <!-- Seção: Transferência Eletrônica -->
+                <div id="section-transfer" class="styles_container__fQ7ZZ" style="display:none">
                   <section>
                     <form id="formRef">
                       <fieldset>
@@ -814,7 +874,9 @@
                           </div>
                         </fieldset>
                       </form>
-                  </section>
+                    </section>
+                  </div><!-- /section-transfer -->
+
                   <!-- Seção de anexos -->
                   <fieldset class="mt-4">
                     <legend>Anexos</legend>
