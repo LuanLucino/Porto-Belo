@@ -36,3 +36,28 @@ exports._createMeasurement = async (req, res, next) => {
     return next(err);
   }
 };
+
+exports._sendMeasurementAttachment = async (req, res, next) => {
+  try {
+    const { documentId, contractNumber, buildingId, measurementNumber, description } = req.body ?? {};
+
+    if (!documentId) return res.status(400).json({ error: 'documentId é obrigatório.' });
+    if (!contractNumber) return res.status(400).json({ error: 'contractNumber é obrigatório.' });
+    if (!buildingId) return res.status(400).json({ error: 'buildingId é obrigatório.' });
+    if (!measurementNumber) return res.status(400).json({ error: 'measurementNumber é obrigatório.' });
+    if (!description) return res.status(400).json({ error: 'description é obrigatório.' });
+    if (!req.file) return res.status(400).json({ error: 'file é obrigatório.' });
+
+    const attachment = await siengeGateway.sendMeasurementAttachment({
+      documentId,
+      contractNumber,
+      buildingId,
+      measurementNumber,
+      description,
+      file: req.file,
+    });
+    return res.status(201).json({ attachment });
+  } catch (err) {
+    return next(err);
+  }
+};

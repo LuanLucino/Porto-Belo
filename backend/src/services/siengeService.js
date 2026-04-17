@@ -10,6 +10,7 @@
 //   Contract  -> { id, code, contractName, constructionName, technicalRetention }
 
 const axios = require('axios');
+const FormData = require('form-data');
 const { env } = require('../config/env');
 const { SiengeUtils } = require('../utils/siengeServicesUtils');
 
@@ -140,6 +141,28 @@ class AsyncSiengeGateway {
       throw mapped;
     }
   }
+
+  async sendMeasurementAttachment({ documentId, contractNumber, buildingId, measurementNumber, description, file }) {
+    const form = new FormData();
+    form.append('file', file.buffer, {
+      filename: file.originalname,
+      contentType: file.mimetype,
+    });
+
+    try {
+      const response = await this.client.post('/supply-contracts/measurements/attachments', form, {
+        params: { documentId, contractNumber, buildingId, measurementNumber, description },
+        headers: form.getHeaders(),
+        maxContentLength: Infinity,
+        maxBodyLength: Infinity,
+      });
+      return response.data ?? null;
+    } catch (err) {
+      const mapped = SiengeUtils.mapSiengeError(err, 'Falha ao enviar anexo da medição no Sienge.');
+      if (mapped === null) throw SiengeUtils.httpError(404, 'Medição não encontrada no Sienge.');
+      throw mapped;
+    }
+  }
 }
 
 // ---------- Gateway mock ----------
@@ -183,6 +206,10 @@ class MockSiengeGateway {
 
   async createMeasurement(documentId, contractNumber, buildingId, body) {
     return { id: Math.floor(Math.random() * 10000), status: 'MOCK_CREATED', ...body };
+  }
+
+  async sendMeasurementAttachment({ file, description }) {
+    return { status: 'MOCK_ATTACHED', filename: file?.originalname ?? null, description };
   }
 }
 

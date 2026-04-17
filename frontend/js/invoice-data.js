@@ -4,6 +4,15 @@
 
 let selectedFile = null;
 
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(file);
+    });
+}
+
 function fillHeader() {
     const supplier = getLocalStorage('supplier');
     if (!supplier) return;
@@ -28,7 +37,7 @@ function setupFileInput() {
     });
 }
 
-function sendInvoiceData() {
+async function sendInvoiceData() {
     const invoiceNumber = document.getElementById('numeroNota')?.value || '';
     const invoiceValue = document.getElementById('valorNotaFiscal')?.value || '';
     const emissionDate = document.getElementById('dataEmissao')?.value || '';
@@ -50,6 +59,23 @@ function sendInvoiceData() {
         dueDate,
         hasFile: !!selectedFile,
     });
+
+    if (selectedFile) {
+        try {
+            const dataUrl = await fileToBase64(selectedFile);
+            setLocalStorage('invoiceFile', {
+                name: selectedFile.name,
+                type: selectedFile.type,
+                dataUrl,
+            });
+        } catch (err) {
+            console.error('Falha ao ler o arquivo da NF:', err);
+            alert('Não foi possível ler o arquivo anexado. Tente novamente.');
+            return;
+        }
+    } else {
+        localStorage.removeItem('invoiceFile');
+    }
 
     window.location.href = './payment-data.html';
 }

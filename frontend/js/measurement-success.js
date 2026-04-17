@@ -50,8 +50,17 @@ function fillPayment() {
 }
 
 function finalizar() {
-    ['supplier', 'selectedContract', 'selectedItem', 'invoiceData', 'dadosPagamento', 'measurementResult', 'measuredQuantity']
-        .forEach(key => localStorage.removeItem(key));
+    [
+        'supplier',
+        'selectedContract',
+        'selectedItem',
+        'invoiceData',
+        'invoiceFile',
+        'dadosPagamento',
+        'measurementResult',
+        'measuredQuantity',
+        'attachmentResult',
+    ].forEach(key => localStorage.removeItem(key));
     window.location.href = './home.html';
 }
 

@@ -1,6 +1,34 @@
 // Page script for finalize-payment.html
 // Reúne o que foi coletado nas telas anteriores (supplier, selectedContract,
 // invoiceData, dadosPagamento) e submete a medição ao Sienge via /api/create-measurement.
+// Após o sucesso da medição, envia o PDF da NF (se anexado) como anexo da medição.
+
+function dataUrlToBlob(dataUrl) {
+    const [header, base64] = dataUrl.split(',');
+    const mimeMatch = header.match(/:(.*?);/);
+    const mime = mimeMatch ? mimeMatch[1] : 'application/octet-stream';
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return new Blob([bytes], { type: mime });
+}
+
+async function uploadInvoiceAttachment(contract, invoice, measurementNumber) {
+    const invoiceFile = getLocalStorage('invoiceFile');
+    if (!invoiceFile?.dataUrl) return null;
+    if (!measurementNumber) return null;
+
+    const blob = dataUrlToBlob(invoiceFile.dataUrl);
+    const formData = new FormData();
+    formData.append('file', blob, invoiceFile.name);
+    formData.append('documentId', contract.documentId);
+    formData.append('contractNumber', contract.code);
+    formData.append('buildingId', contract.buildingId);
+    formData.append('measurementNumber', measurementNumber);
+    formData.append('description', `NF ${invoice.invoiceNumber}`.slice(0, 500));
+
+    return window.api.postForm('/send-measurement-attachment', formData);
+}
 
 function fillHeader() {
     const supplier = getLocalStorage('supplier');
@@ -78,15 +106,29 @@ async function enviarMedicao() {
         buildingId: contract.buildingId,
     });
 
+    let measurement;
     try {
         const result = await window.api.post(`/create-measurement?${query}`, body);
-        setLocalStorage('measurementResult', result?.measurement ?? result ?? {});
+        measurement = result?.measurement ?? result ?? {};
+        setLocalStorage('measurementResult', measurement);
         setLocalStorage('measuredQuantity', measuredQuantity);
-        window.location.href = './measurement-success.html';
     } catch (err) {
         console.error('Erro ao enviar medição:', err);
         alert(err.message);
+        return;
     }
+
+    const measurementNumber = measurement.measurementNumber ?? measurement.id ?? measurement.number ?? null;
+
+    try {
+        const attachment = await uploadInvoiceAttachment(contract, invoice, measurementNumber);
+        if (attachment) setLocalStorage('attachmentResult', attachment);
+    } catch (err) {
+        console.error('Erro ao enviar anexo da medição:', err);
+        alert(`Medição criada, mas o anexo falhou: ${err.message}`);
+    }
+
+    window.location.href = './measurement-success.html';
 }
 
 fillHeader();
