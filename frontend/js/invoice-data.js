@@ -1,6 +1,14 @@
-// Page script for invoice-data.html
-// Lê o contrato selecionado na etapa anterior, coleta os dados da NF
-// e persiste em localStorage para uso na etapa final (criação da medição no Sienge).
+// NOTIFICAÇÕES: função que exibe mensagens usando as classes do preload.css (message-box)
+// Tipos disponíveis: 'error' (vermelho), 'warning' (amarelo), 'success' (verde), 'info' (vermelho)
+function showMessage(message, type = 'error', duration = 4000) {
+    const box = document.getElementById('message-box');
+    box.textContent = message;
+    box.className = `message-box ${type}`;
+    box.style.display = 'block';
+    setTimeout(() => {
+        box.style.display = 'none';
+    }, duration);
+}
 
 let selectedFile = null;
 
@@ -24,7 +32,8 @@ function fillHeader() {
 function fillContractInfo() {
     const contract = getLocalStorage('selectedContract');
     if (!contract) {
-        alert('Nenhum contrato selecionado. Volte e selecione um contrato.');
+        // NOTIFICAÇÕES: substituído alert() por showMessage()
+        showMessage('Nenhum contrato selecionado. Volte e selecione um contrato.', 'error');
         return;
     }
     document.getElementById('codigo-contrato-val').textContent = contract.code ?? '';
@@ -44,11 +53,32 @@ async function sendInvoiceData() {
     const dueDate = document.getElementById('dataVencimento')?.value || '';
 
     if (!invoiceNumber) {
-        alert('Por favor, preencha o número da nota.');
+        // NOTIFICAÇÕES: substituído alert() por showMessage()
+        showMessage('Por favor, preencha o número da nota.', 'error');
+        return;
+    }
+    // CAMPO OBRIGATÓRIO: validação da data de emissão
+    if (!emissionDate) {
+        // NOTIFICAÇÕES: substituído alert() por showMessage()
+        showMessage('Por favor, preencha a data de emissão.', 'error');
+        return;
+    }
+    // CAMPO OBRIGATÓRIO: validação da data de vencimento
+    if (!dueDate) {
+        // NOTIFICAÇÕES: substituído alert() por showMessage()
+        showMessage('Por favor, preencha a data de vencimento.', 'error');
         return;
     }
     if (!invoiceValue) {
-        alert('Por favor, preencha o valor da nota.');
+        // NOTIFICAÇÕES: substituído alert() por showMessage()
+        showMessage('Por favor, preencha o valor da nota.', 'error');
+        return;
+    }
+
+    // CAMPO OBRIGATÓRIO: validação do anexo da nota fiscal
+    if (!selectedFile) {
+        // NOTIFICAÇÕES: substituído alert() por showMessage()
+        showMessage('Por favor, anexe a nota fiscal.', 'error');
         return;
     }
 
@@ -70,7 +100,8 @@ async function sendInvoiceData() {
             });
         } catch (err) {
             console.error('Falha ao ler o arquivo da NF:', err);
-            alert('Não foi possível ler o arquivo anexado. Tente novamente.');
+            // NOTIFICAÇÕES: substituído alert() por showMessage()
+            showMessage('Não foi possível ler o arquivo anexado. Tente novamente.', 'error');
             return;
         }
     } else {
