@@ -61,8 +61,9 @@ function finalizar() {
         'measuredQuantity',
         'attachmentResult',
     ].forEach(key => localStorage.removeItem(key));
-    window.location.href = './home.html';
+    window.location.href = './endpage.html';
 }
+
 
 fillHeader();
 fillSummary();
