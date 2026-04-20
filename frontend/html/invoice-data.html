@@ -33,6 +33,8 @@
 <body>
   <div id="__next">
     <div class="Toastify"></div>
+    <!-- NOTIFICAÇÕES: div reutilizando as classes message-box do preload.css -->
+    <div id="message-box" class="message-box"></div>
     <div id="root">
       <div class="styles_container__lAhF8">
         <div class="styles_wrapperLogged__vU1Lb">
@@ -68,21 +70,25 @@
                   <div class="flex space-x-8">
                     <div class="styles_container__vlAK4">
                       <label for="numeroNota">Número da Nota</label>
-                      <input id="numeroNota" name="numeroNota" type="number" min="1" />
+                      <!-- CAMPO OBRIGATÓRIO: adicionado atributo required -->
+                      <input id="numeroNota" name="numeroNota" type="number" min="1" required />
                     </div>
                     <div class="styles_container__vlAK4">
                       <label for="dataEmissao">Data de Emissão</label>
-                      <input id="dataEmissao" name="dataEmissao" type="date" />
+                      <!-- CAMPO OBRIGATÓRIO: adicionado atributo required -->
+                      <input id="dataEmissao" name="dataEmissao" type="date" required />
                     </div>
                     <div class="styles_container__vlAK4">
                       <label for="dataVencimento">Data de Vencimento</label>
-                      <input id="dataVencimento" name="dataVencimento" type="date" />
+                      <!-- CAMPO OBRIGATÓRIO: adicionado atributo required -->
+                      <input id="dataVencimento" name="dataVencimento" type="date" required />
                     </div>
                     <div class="styles_container__vlAK4">
                       <label for="valorNotaFiscal">Valor</label>
                       <div>
+                        <!-- CAMPO OBRIGATÓRIO: adicionado atributo required -->
                         <input type="text" inputmode="decimal" id="valorNotaFiscal" name="valorNotaFiscal"
-                          placeholder="R$ 0,00" autocomplete="off" />
+                          placeholder="R$ 0,00" autocomplete="off" required />
                       </div>
                     </div>
                   </div>
