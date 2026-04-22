@@ -1,6 +1,7 @@
 // Page script for measurement-success.html
 // Lê tudo do localStorage (incluindo a resposta do Sienge gravada pelo finalize-payment)
-// e mostra um resumo consolidado. Ao clicar em Finalizar, limpa o estado e volta pra home.
+// e mostra um resumo consolidado. Ao clicar em Finalizar, vai para endpage.html.
+// A limpeza do localStorage é feita pelo endpage.js ao clicar em "Voltar ao Início".
 
 function fillHeader() {
     const supplier = getLocalStorage('supplier');
@@ -50,20 +51,8 @@ function fillPayment() {
 }
 
 function finalizar() {
-    [
-        'supplier',
-        'selectedContract',
-        'selectedItem',
-        'invoiceData',
-        'invoiceFile',
-        'dadosPagamento',
-        'measurementResult',
-        'measuredQuantity',
-        'attachmentResult',
-    ].forEach(key => localStorage.removeItem(key));
     window.location.href = './endpage.html';
 }
-
 
 fillHeader();
 fillSummary();
