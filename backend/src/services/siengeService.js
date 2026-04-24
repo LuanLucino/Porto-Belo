@@ -163,6 +163,17 @@ class AsyncSiengeGateway {
       throw mapped;
     }
   }
+
+  async getSupplierPaymentInfo(supplierId) {
+    try {
+      const response = await this.client.get(`/creditors/${supplierId}/bank-informations`);
+      return SiengeUtils.adaptPaymentInfo(response.data);
+    } catch (err) {
+      const mapped = SiengeUtils.mapSiengeError(err, 'Falha ao consultar informações de pagamento do fornecedor no Sienge.');
+      if (mapped === null) return null;
+      throw mapped;
+    }
+  }
 }
 
 // ---------- Gateway mock ----------

@@ -1,0 +1,23 @@
+# Dependências (serão reinstaladas dentro da imagem)
+node_modules
+
+# Variáveis de ambiente (injetadas via env_file no compose)
+.env
+.env.*
+
+# Artefatos de dev
+npm-debug.log*
+*.log
+coverage
+.nyc_output
+
+# Metadados
+.git
+.gitignore
+.vscode
+.idea
+*.md
+
+# Arquivos do próprio Docker (não precisam dentro da imagem)
+Dockerfile
+.dockerignore

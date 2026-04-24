@@ -1,0 +1,16 @@
+# Dependências (caso existam — frontend é vanilla, mas por garantia)
+node_modules
+
+# Artefatos de dev
+*.log
+
+# Metadados
+.git
+.gitignore
+.vscode
+.idea
+*.md
+
+# Arquivos do próprio Docker
+Dockerfile
+.dockerignore
