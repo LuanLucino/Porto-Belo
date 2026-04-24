@@ -111,6 +111,85 @@ async function sendInvoiceData() {
     window.location.href = './payment-data.html';
 }
 
+// Formatação automática do campo Valor
+const valorInput = document.getElementById("valorNotaFiscal");
+
+valorInput.addEventListener("input", function (e) {
+  let value = e.target.value.replace(/\D/g, ""); // só números
+  if (value) {
+    let formatted = (Number(value) / 100).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL"
+    });
+    e.target.value = formatted;
+  } else {
+    e.target.value = "";
+  }
+});
+
+async function sendInvoiceData() {
+    const invoiceNumber = document.getElementById('numeroNota')?.value || '';
+    const invoiceValueFormatted = document.getElementById('valorNotaFiscal')?.value || '';
+    const emissionDate = document.getElementById('dataEmissao')?.value || '';
+    const dueDate = document.getElementById('dataVencimento')?.value || '';
+
+    if (!invoiceNumber) {
+        showMessage('Por favor, preencha o número da nota.', 'error');
+        return;
+    }
+    if (!emissionDate) {
+        showMessage('Por favor, preencha a data de emissão.', 'error');
+        return;
+    }
+    if (!dueDate) {
+        showMessage('Por favor, preencha a data de vencimento.', 'error');
+        return;
+    }
+    if (!invoiceValueFormatted) {
+        showMessage('Por favor, preencha o valor da nota.', 'error');
+        return;
+    }
+
+    // 🔑 Converter valor formatado em número puro
+    const invoiceValue = parseFloat(invoiceValueFormatted.replace(/[^\d]/g, "")) / 100;
+
+    if (!selectedFile) {
+        showMessage('Por favor, anexe a nota fiscal.', 'error');
+        return;
+    }
+
+    setLocalStorage('invoiceData', {
+        invoiceNumber,
+        invoiceValue, // agora é número puro
+        emissionDate,
+        dueDate,
+        hasFile: !!selectedFile,
+    });
+
+    if (selectedFile) {
+        try {
+            const dataUrl = await fileToBase64(selectedFile);
+            setLocalStorage('invoiceFile', {
+                name: selectedFile.name,
+                type: selectedFile.type,
+                dataUrl,
+            });
+        } catch (err) {
+            console.error('Falha ao ler o arquivo da NF:', err);
+            showMessage('Não foi possível ler o arquivo anexado. Tente novamente.', 'error');
+            return;
+        }
+    } else {
+        localStorage.removeItem('invoiceFile');
+    }
+
+    window.location.href = './payment-data.html';
+}
+
+
+
+
+
 fillHeader();
 fillContractInfo();
 setupFileInput();
