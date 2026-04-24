@@ -67,28 +67,21 @@
                   <p><strong>Tipo:</strong> <span id="tipo-conta-val"></span></p>
                 </div>
                 <fieldset class="mt-8">
-                  <legend>Anexos</legend>
-                  <div class="space-y-4">
-                    <div class="flex items-center">
-                      <button
-                        class="rounded px-16 py-2 text-lg transition-colors w-auto bg-secondary text-white hover:bg-secondary-hover"
-                        type="button">
-                        <p>
-                          <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16"
-                            height="16" width="16" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"></path>
-                            <path
-                              d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z">
-                            </path>
-                          </svg>
-                        </p>
-                      </button>
-                      <p class="ml-4">
+  <legend>Anexos</legend>
+  <div class="space-y-4">
+    <div class="flex items-center">
+      <button
+        id="showAttachmentsBtn"
+        class="rounded px-16 py-2 text-lg transition-colors w-auto bg-secondary text-white hover:bg-secondary-hover"
+        type="button">
+        <p>Anexo</p>
+      </button>
+      <p id="attachmentsList" class="ml-4"></p>
+    </div>
+  </div>
+</fieldset>
 
-                      </p>
-                    </div>
-                  </div>
-                </fieldset>
+
               </section>
               <div class="ml-auto mt-8 flex max-w-lg space-x-4">
                 <button

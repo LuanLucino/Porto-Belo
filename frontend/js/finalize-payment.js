@@ -131,6 +131,30 @@ async function enviarMedicao() {
     window.location.href = './measurement-success.html';
 }
 
+
+function setupAttachmentButton() {
+  const btn = document.getElementById("showAttachmentsBtn");
+  const list = document.getElementById("attachmentsList");
+
+  btn.addEventListener("click", () => {
+    const invoiceFile = getLocalStorage("invoiceFile");
+    if (invoiceFile && invoiceFile.name && invoiceFile.dataUrl) {
+      // Mostra o nome do arquivo
+      list.textContent = `Arquivo anexado: ${invoiceFile.name}`;
+
+      // Abre uma prévia em nova aba
+      const win = window.open();
+      win.document.write(
+        `<iframe src="${invoiceFile.dataUrl}" width="100%" height="100%"></iframe>`
+      );
+    } else {
+      list.textContent = "Nenhum anexo encontrado.";
+    }
+  });
+}
+
+
 fillHeader();
 fillSummary();
 fillPayment();
+setupAttachmentButton(); // adiciona a inicialização do botão
