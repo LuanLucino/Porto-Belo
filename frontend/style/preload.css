@@ -87,3 +87,17 @@
 .message-box.info {
   background-color: #e74c3c; /* vermelho */
 }
+
+
+
+/* Remove setinhas em navegadores Webkit (Chrome, Edge, Safari) */
+#numeroNota::-webkit-inner-spin-button, 
+#numeroNota::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Remove setinhas no Firefox */
+#numeroNota {
+  -moz-appearance: textfield;
+}
