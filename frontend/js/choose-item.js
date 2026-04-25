@@ -1,7 +1,5 @@
-// Page script for choose-item.html
-// Lê o contrato selecionado na etapa anterior, busca os itens no Sienge
-// e persiste o item escolhido em localStorage para a etapa de medição.
-
+// Preenche o cabeçalho com os dados do fornecedor pra manter o
+// contexto visual entre as telas do fluxo.
 function fillHeader() {
     const supplier = getLocalStorage('supplier');
     if (!supplier) return;
@@ -10,10 +8,14 @@ function fillHeader() {
     document.getElementById('cnpj-val').textContent = supplier.cnpj ?? '';
 }
 
+// Mostra o código do contrato selecionado pra o usuário confirmar
+// que está medindo o contrato certo antes de escolher o item.
 function fillContractInfo(contract) {
     document.getElementById('codigo-contrato-val').textContent = contract?.code ?? '';
 }
 
+// Renderiza os itens do contrato como linhas de tabela com radio,
+// porque cada medição amarra a um único item.
 function renderTable(items) {
     const tbody = document.getElementById('tabela-itens-body');
     tbody.innerHTML = '';
@@ -31,6 +33,8 @@ function renderTable(items) {
     });
 }
 
+// Habilita o botão Próxima só quando houver um item selecionado, pra
+// evitar que o usuário avance sem dado obrigatório do payload.
 function updateNextButton() {
     const nextButton = document.getElementById('btn-proxima');
     const hasSelection = document.querySelectorAll('.item-row:checked').length > 0;
@@ -44,11 +48,15 @@ function updateNextButton() {
     }
 }
 
+// Listener delegado: dispara o updateNextButton quando o radio muda,
+// sem precisar amarrar handler em cada linha gerada.
 function handleSelectionChange(event) {
     if (!event.target.classList.contains('item-row')) return;
     updateNextButton();
 }
 
+// Persiste o item escolhido no localStorage e segue pra próxima etapa;
+// o finalize-payment vai usar esse item pra calcular measuredQuantity.
 function buildGoToNextStep(items) {
     return function goToNextStep() {
         const checked = document.querySelector('.item-row:checked');
@@ -62,16 +70,18 @@ function buildGoToNextStep(items) {
     };
 }
 
+// Garante que o contrato tem buildingUnitId; o /supply-contracts/all
+// não devolve esse campo, então usamos um fallback fixo no MVP.
 async function ensureBuildingUnitId(contract) {
     if (contract.buildingUnitId) return contract;
 
-    // TODO: trocar o hardcode por chamada ao /get-contract-buildings
-    // quando o shape da resposta estiver confirmado.
     const enriched = { ...contract, buildingUnitId: 1 };
     setLocalStorage('selectedContract', enriched);
     return enriched;
 }
 
+// Chama o backend pra trazer os itens do contrato; valida os 4
+// identificadores obrigatórios antes pra mensagem de erro ser clara.
 async function fetchContractItems(contract) {
     if (!contract.documentId || !contract.code || !contract.buildingId || !contract.buildingUnitId) {
         throw new Error(
@@ -88,6 +98,8 @@ async function fetchContractItems(contract) {
     return data?.contractItems ?? [];
 }
 
+// Orquestra o carregamento da tela: popula header, busca itens e
+// liga os listeners de seleção e próxima etapa.
 async function init() {
     fillHeader();
 

@@ -1,12 +1,12 @@
-// Ponto único de leitura do .env.
-// Qualquer variável de ambiente deve ser lida AQUI e exportada tipada.
-// No resto do código use: const { env } = require('./config/env');
+// Centraliza a leitura do .env num só lugar para o resto do código
+// só consumir o objeto `env` já tipado, sem chamar process.env espalhado.
 
 const path = require('path');
 
-// Aponta o dotenv pro .env do backend, independente de onde o node foi invocado.
 require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') });
 
+// Lê uma variável obrigatória; se faltar, derruba o boot na hora
+// para o erro aparecer cedo, e não em runtime no meio de uma request.
 function required(name) {
   const value = process.env[name];
   if (value === undefined || value === '') {
@@ -15,11 +15,15 @@ function required(name) {
   return value;
 }
 
+// Lê uma variável opcional com fallback; usado para configs que têm
+// um default razoável em dev (porta, nodeEnv, etc.).
 function optional(name, fallback) {
   const value = process.env[name];
   return value === undefined || value === '' ? fallback : value;
 }
 
+// Quebra valores tipo "a,b,c" em array; útil para FRONTEND_ORIGINS
+// que aceita múltiplas URLs separadas por vírgula.
 function parseList(value) {
   return value.split(',').map((s) => s.trim()).filter(Boolean);
 }

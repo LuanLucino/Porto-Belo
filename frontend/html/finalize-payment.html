@@ -61,25 +61,17 @@
                 <div class="styles_container__uacOG">
                   <p><strong>Nome do Favorecido:</strong> <span id="nome-favorecido-val"></span></p>
                   <p><strong>CPF/CNPJ do Favorecido:</strong> <span id="cpf-cnpj-favorecido-val"></span></p>
-                  <p><strong>Banco:</strong> <span id="banco-val"></span></p>
-                  <p><strong>Agência:</strong> <span id="agencia-val"></span></p>
-                  <p><strong>Conta:</strong> <span id="conta-val"></span></p>
-                  <p><strong>Tipo:</strong> <span id="tipo-conta-val"></span></p>
+                  <div id="bank-info-rows">
+                    <p><strong>Banco:</strong> <span id="banco-val"></span></p>
+                    <p><strong>Agência:</strong> <span id="agencia-val"></span></p>
+                    <p><strong>Conta:</strong> <span id="conta-val"></span></p>
+                    <p><strong>Tipo:</strong> <span id="tipo-conta-val"></span></p>
+                  </div>
                 </div>
                 <fieldset class="mt-8">
-  <legend>Anexos</legend>
-  <div class="space-y-4">
-    <div class="flex items-center">
-      <button
-        id="showAttachmentsBtn"
-        class="rounded px-16 py-2 text-lg transition-colors w-auto bg-secondary text-white hover:bg-secondary-hover"
-        type="button">
-        <p>Anexo</p>
-      </button>
-      <p id="attachmentsList" class="ml-4"></p>
-    </div>
-  </div>
-</fieldset>
+                  <legend>Anexos</legend>
+                  <div id="attachmentsList" class="space-y-4"></div>
+                </fieldset>
 
 
               </section>

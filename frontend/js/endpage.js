@@ -17,14 +17,17 @@ document.addEventListener('DOMContentLoaded', function () {
 function voltaraoinicio() {
     [
         'supplier',
+        'supplierBankInfo',
         'selectedContract',
         'selectedItem',
         'invoiceData',
         'invoiceFile',
+        'boletoFile',
         'dadosPagamento',
         'measurementResult',
         'measuredQuantity',
         'attachmentResult',
+        'boletoAttachmentResult',
     ].forEach(key => localStorage.removeItem(key));
     window.location.href = './home.html';
 }

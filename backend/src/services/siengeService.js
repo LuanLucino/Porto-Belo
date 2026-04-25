@@ -1,13 +1,5 @@
-// ÚNICO lugar que fala com a API externa do Sienge.
-// Responsabilidades:
-//  - Fazer chamadas HTTP.
-//  - TRADUZIR a resposta real do Sienge para o schema estável usado pelo frontend.
-//  - Tratar "não encontrado" (404) como null/lista vazia — não como erro.
-// O resto do código (controllers, frontend) só conhece o schema traduzido abaixo.
-
-// Schemas for the frontend (adapted)
-//   Supplier  -> { id, cnpj, name, tradeName, stateRegistrationNumber, personType }
-//   Contract  -> { id, code, contractName, constructionName, technicalRetention }
+// Único ponto que fala com a API do Sienge; isola HTTP e tradução de
+// schema pro resto do código não saber como o Sienge se comporta.
 
 const axios = require('axios');
 const FormData = require('form-data');
@@ -15,7 +7,7 @@ const { env } = require('../config/env');
 const { SiengeUtils } = require('../utils/siengeServicesUtils');
 
 
-// ---------- Gateway real ----------
+// Gateway que bate na API real do Sienge; usado quando SIENGE_MOCK=false.
 class AsyncSiengeGateway {
   constructor(settings) {
     this.client = axios.create({
@@ -25,6 +17,8 @@ class AsyncSiengeGateway {
     });
   }
 
+  // Busca um fornecedor pelo CNPJ; usado no home pra validar se o
+  // fornecedor está cadastrado antes de liberar o restante do fluxo.
   async getSupplier(cnpj) {
     try {
       const response = await this.client.get('/creditors', { params: { cnpj } });
@@ -37,28 +31,42 @@ class AsyncSiengeGateway {
     }
   }
 
+  // Lista as contas bancárias cadastradas para o fornecedor; usado
+  // no home pra pré-carregar e oferecer como sugestão na tela de pagamento.
+  async getSupplierBankInformations(supplierId) {
+    try {
+      const response = await this.client.get(`/creditors/${supplierId}/bank-informations`);
+      const results = Array.isArray(response.data?.results) ? response.data.results : [];
+      return results.map(SiengeUtils.adaptBankInformation);
+    } catch (err) {
+      const mapped = SiengeUtils.mapSiengeError(err, 'Falha ao consultar dados bancários do fornecedor.');
+      if (mapped === null) return [];
+      throw mapped;
+    }
+  }
+
+  // Busca uma página única de contratos; helper privado usado pelo
+  // getSupplierContracts pra paralelizar a paginação.
   async getContractsPage(offset, limit) {
     const response = await this.client.get('/supply-contracts/all', { params: { offset, limit } });
     return response.data;
   }
 
+  // Devolve todos os contratos do fornecedor; o Sienge não tem filtro
+  // por supplier, então pagina tudo em paralelo e filtra em memória.
   async getSupplierContracts(supplierId) {
     const PAGE_SIZE = 200;
     try {
-
-      // gets the count
       const first = await this.getContractsPage(0, 1);
       const total = first?.resultSetMetadata?.count ?? 0;
       if (total === 0) return [];
 
-      // creates the parallel requests
       const pages = Math.ceil(total / PAGE_SIZE);
       const requests = Array.from({ length: pages }, (_, i) =>
         this.getContractsPage(i * PAGE_SIZE, PAGE_SIZE)
       );
       const responses = await Promise.all(requests);
 
-      // concatenates and adapts the results
       const all = responses.flatMap(r =>
         Array.isArray(r?.results) ? r.results : []
       );
@@ -73,6 +81,8 @@ class AsyncSiengeGateway {
     }
   }
 
+  // Lista as empresas (companies) do Sienge; suporte para futura
+  // seleção/filtro por empresa no portal.
   async getCompanies() {
     try {
       const response = await this.client.get('/companies')
@@ -85,6 +95,8 @@ class AsyncSiengeGateway {
     }
   }
 
+  // Lista os itens medíveis de um contrato; fornece a tabela que o
+  // usuário escolhe na tela choose-item antes de criar a medição.
   async getContractItems(documentId, contractNumber, buildingId, buildingUnitId) {
     const params = {
       documentId: documentId,
@@ -103,6 +115,8 @@ class AsyncSiengeGateway {
     }
   }
 
+  // Resolve o buildingUnitId que o /items exige; o /supply-contracts/all
+  // não traz esse campo, então precisamos dessa chamada extra.
   async getContractBuildings(documentId, contractNumber) {
     const params = { documentId, contractNumber };
     try {
@@ -115,6 +129,9 @@ class AsyncSiengeGateway {
       throw mapped;
     }
   }
+
+  // Cria a medição no Sienge; o body é montado pelo controller a
+  // partir dos dados que o usuário coletou ao longo do fluxo.
   async createMeasurement(documentId, contractNumber, buildingId, body) {
     const params = {
       documentId: documentId,
@@ -142,6 +159,8 @@ class AsyncSiengeGateway {
     }
   }
 
+  // Anexa um arquivo (NF ou boleto) a uma medição já criada; o Sienge
+  // exige multipart e aceita um anexo por chamada.
   async sendMeasurementAttachment({ documentId, contractNumber, buildingId, measurementNumber, description, file }) {
     const form = new FormData();
     form.append('file', file.buffer, {
@@ -176,7 +195,8 @@ class AsyncSiengeGateway {
   }
 }
 
-// ---------- Gateway mock ----------
+// Gateway com respostas estáticas; usado em dev para trabalhar sem
+// depender do Sienge real (ative com SIENGE_MOCK=true no .env).
 class MockSiengeGateway {
   async getSupplier(cnpj) {
     return {
@@ -189,6 +209,21 @@ class MockSiengeGateway {
     };
   }
 
+  async getSupplierBankInformations(supplierId) {
+    return [
+      {
+        bankCode: '104',
+        bankName: 'CAIXA ECONOMICA FEDERAL',
+        agency: '0001',
+        accountNumber: '12345-6',
+        accountType: 'CC',
+        holderName: 'FORNECEDOR EXEMPLO LTDA',
+        holderDocument: '12.345.678/0001-99',
+        isDefault: true,
+      },
+    ];
+  }
+                                                                                        
   async getSupplierContracts(supplierId) {
     const allContracts = await this.getAllContracts();
     return allContracts.filter(c => c.supplierId === supplierId);
@@ -224,7 +259,8 @@ class MockSiengeGateway {
   }
 }
 
-// ---------- Boot ----------
+// Decide qual gateway exportar baseado no flag SIENGE_MOCK; o resto
+// do app só importa `siengeGateway` sem saber qual versão recebeu.
 const siengeGateway = env.sienge.mock
   ? new MockSiengeGateway()
   : new AsyncSiengeGateway({

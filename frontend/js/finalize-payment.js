@@ -1,8 +1,5 @@
-// Page script for finalize-payment.html
-// Reúne o que foi coletado nas telas anteriores (supplier, selectedContract,
-// invoiceData, dadosPagamento) e submete a medição ao Sienge via /api/create-measurement.
-// Após o sucesso da medição, envia o PDF da NF (se anexado) como anexo da medição.
-
+// Converte uma data URL (base64) de volta para Blob; necessário pra
+// reidratar o arquivo persistido em localStorage e enviar via FormData.
 function dataUrlToBlob(dataUrl) {
     const [header, base64] = dataUrl.split(',');
     const mimeMatch = header.match(/:(.*?);/);
@@ -13,23 +10,26 @@ function dataUrlToBlob(dataUrl) {
     return new Blob([bytes], { type: mime });
 }
 
-async function uploadInvoiceAttachment(contract, invoice, measurementNumber) {
-    const invoiceFile = getLocalStorage('invoiceFile');
-    if (!invoiceFile?.dataUrl) return null;
+// Helper genérico que envia um arquivo (NF ou boleto) como anexo de
+// uma medição já criada; o Sienge aceita um anexo por chamada.
+async function uploadAttachment(contract, measurementNumber, fileEntry, description) {
+    if (!fileEntry?.dataUrl) return null;
     if (!measurementNumber) return null;
 
-    const blob = dataUrlToBlob(invoiceFile.dataUrl);
+    const blob = dataUrlToBlob(fileEntry.dataUrl);
     const formData = new FormData();
-    formData.append('file', blob, invoiceFile.name);
+    formData.append('file', blob, fileEntry.name);
     formData.append('documentId', contract.documentId);
     formData.append('contractNumber', contract.code);
     formData.append('buildingId', contract.buildingId);
     formData.append('measurementNumber', measurementNumber);
-    formData.append('description', `NF ${invoice.invoiceNumber}`.slice(0, 500));
+    formData.append('description', String(description ?? '').slice(0, 500));
 
     return window.api.postForm('/send-measurement-attachment', formData);
 }
 
+// Preenche o cabeçalho com dados do fornecedor pra manter contexto
+// visual entre as telas do fluxo.
 function fillHeader() {
     const supplier = getLocalStorage('supplier');
     if (!supplier) return;
@@ -38,31 +38,63 @@ function fillHeader() {
     document.getElementById('cnpj-val').textContent = supplier.cnpj ?? '';
 }
 
+// Formata um número como BRL (R$ 1.234,56); o invoiceValue está em
+// localStorage como número puro pra evitar ambiguidade na hora do parse.
+function formatBRL(value) {
+    const num = Number(value);
+    if (!Number.isFinite(num)) return '';
+    return num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
+// Mostra o resumo de contrato + NF coletados ao longo do fluxo, pra
+// o usuário conferir antes de confirmar o envio ao Sienge.
 function fillSummary() {
     const contract = getLocalStorage('selectedContract');
     const invoice = getLocalStorage('invoiceData');
 
     document.getElementById('codigo-contrato-val').textContent = contract?.code ?? '';
-    document.getElementById('valor-val').textContent = invoice?.invoiceValue ?? '';
+    document.getElementById('valor-val').textContent = formatBRL(invoice?.invoiceValue);
     document.getElementById('numero-nota-val').textContent = invoice?.invoiceNumber ?? '';
     document.getElementById('data-emissao-val').textContent = invoice?.emissionDate ?? '';
     document.getElementById('data-vencimento-val').textContent = invoice?.dueDate ?? '';
 }
 
+// Traduz o code interno da forma de pagamento pra o rótulo amigável
+// que o usuário entende (ticket → Boleto, etc.).
+function formatPaymentMethod(forma) {
+    switch (forma) {
+        case 'transfer': return 'Transferência Eletrônica';
+        case 'ticket': return 'Boleto';
+        case 'installments': return 'Pagamento Parcelado';
+        default: return forma ?? '';
+    }
+}
+
+// Mostra os campos de pagamento aplicáveis; campos bancários só
+// aparecem quando a forma é transferência, pra não confundir o usuário.
 function fillPayment() {
     const payment = getLocalStorage('dadosPagamento');
     const supplier = getLocalStorage('supplier');
     if (!payment) return;
 
-    document.getElementById('tipo-pagamento-val').textContent = payment.forma ?? '';
+    document.getElementById('tipo-pagamento-val').textContent = formatPaymentMethod(payment.forma);
     document.getElementById('nome-favorecido-val').textContent = payment.nomeFavorecido || supplier?.name || '';
     document.getElementById('cpf-cnpj-favorecido-val').textContent = payment.cpfCnpjFavorecido || supplier?.cnpj || '';
-    document.getElementById('banco-val').textContent = payment.banco ?? '';
-    document.getElementById('agencia-val').textContent = payment.agencia ?? '';
-    document.getElementById('conta-val').textContent = payment.conta ?? '';
-    document.getElementById('tipo-conta-val').textContent = payment.tipoConta ?? '';
+
+    const bankRows = document.getElementById('bank-info-rows');
+    if (payment.forma === 'transfer') {
+        bankRows.style.display = '';
+        document.getElementById('banco-val').textContent = payment.banco ?? '';
+        document.getElementById('agencia-val').textContent = payment.agencia ?? '';
+        document.getElementById('conta-val').textContent = payment.conta ?? '';
+        document.getElementById('tipo-conta-val').textContent = payment.tipoConta ?? '';
+    } else {
+        bankRows.style.display = 'none';
+    }
 }
 
+// Cria a medição no Sienge e, em seguida, anexa NF e boleto se houver;
+// falhas em anexos são reportadas mas não bloqueiam ir pra success.
 async function enviarMedicao() {
     const contract = getLocalStorage('selectedContract');
     const invoice = getLocalStorage('invoiceData');
@@ -119,42 +151,88 @@ async function enviarMedicao() {
     }
 
     const measurementNumber = measurement.measurementNumber ?? measurement.id ?? measurement.number ?? null;
+    const failures = [];
 
     try {
-        const attachment = await uploadInvoiceAttachment(contract, invoice, measurementNumber);
-        if (attachment) setLocalStorage('attachmentResult', attachment);
+        const invoiceFile = getLocalStorage('invoiceFile');
+        const result = await uploadAttachment(contract, measurementNumber, invoiceFile, `NF ${invoice.invoiceNumber}`);
+        if (result) setLocalStorage('attachmentResult', result);
     } catch (err) {
-        console.error('Erro ao enviar anexo da medição:', err);
-        alert(`Medição criada, mas o anexo falhou: ${err.message}`);
+        console.error('Erro ao enviar anexo da NF:', err);
+        failures.push(`NF: ${err.message}`);
+    }
+
+    if (getLocalStorage('dadosPagamento')?.forma === 'ticket') {
+        try {
+            const boletoFile = getLocalStorage('boletoFile');
+            const result = await uploadAttachment(contract, measurementNumber, boletoFile, `Boleto NF ${invoice.invoiceNumber}`);
+            if (result) setLocalStorage('boletoAttachmentResult', result);
+        } catch (err) {
+            console.error('Erro ao enviar anexo do boleto:', err);
+            failures.push(`Boleto: ${err.message}`);
+        }
+    }
+
+    if (failures.length) {
+        alert(`Medição criada, mas alguns anexos falharam: ${failures.join('; ')}`);
     }
 
     window.location.href = './measurement-success.html';
 }
 
-
-function setupAttachmentButton() {
-  const btn = document.getElementById("showAttachmentsBtn");
-  const list = document.getElementById("attachmentsList");
-
-  btn.addEventListener("click", () => {
-    const invoiceFile = getLocalStorage("invoiceFile");
-    if (invoiceFile && invoiceFile.name && invoiceFile.dataUrl) {
-      // Mostra o nome do arquivo
-      list.textContent = `Arquivo anexado: ${invoiceFile.name}`;
-
-      // Abre uma prévia em nova aba
-      const win = window.open();
-      win.document.write(
-        `<iframe src="${invoiceFile.dataUrl}" width="100%" height="100%"></iframe>`
-      );
-    } else {
-      list.textContent = "Nenhum anexo encontrado.";
-    }
-  });
+// Abre o anexo numa nova aba dentro de um iframe; suporta tanto PDF
+// quanto imagem porque o data URL carrega o mimetype original.
+function openAttachmentPreview(file) {
+    const win = window.open();
+    if (!win) return;
+    win.document.write(
+        `<iframe src="${file.dataUrl}" width="100%" height="100%" style="border:0"></iframe>`
+    );
 }
 
+// Lista os anexos disponíveis (NF sempre, boleto só se forma=ticket)
+// e dá um botão "Visualizar" pra cada um abrir em prévia.
+function renderAttachments() {
+    const container = document.getElementById('attachmentsList');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const files = [];
+    const invoiceFile = getLocalStorage('invoiceFile');
+    if (invoiceFile?.dataUrl) files.push({ label: 'Nota Fiscal', file: invoiceFile });
+
+    if (getLocalStorage('dadosPagamento')?.forma === 'ticket') {
+        const boletoFile = getLocalStorage('boletoFile');
+        if (boletoFile?.dataUrl) files.push({ label: 'Boleto', file: boletoFile });
+    }
+
+    if (!files.length) {
+        container.textContent = 'Nenhum anexo.';
+        return;
+    }
+
+    files.forEach(({ label, file }) => {
+        const row = document.createElement('div');
+        row.className = 'flex items-center';
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'rounded px-4 py-1 text-sm bg-secondary text-white hover:bg-secondary-hover';
+        btn.style.marginRight = '16px';
+        btn.textContent = 'Visualizar';
+        btn.addEventListener('click', () => openAttachmentPreview(file));
+
+        const text = document.createElement('span');
+        text.className = 'ml-4';
+        text.textContent = `${label}: ${file.name}`;
+
+        row.appendChild(btn);
+        row.appendChild(text);
+        container.appendChild(row);
+    });
+}
 
 fillHeader();
 fillSummary();
 fillPayment();
-setupAttachmentButton(); // adiciona a inicialização do botão
+renderAttachments();

@@ -3,7 +3,8 @@ const multer = require('multer');
 const router = express.Router();
 const measurementController = require('../controllers/measurementControllers');
 
-// Upload fica em memória (buffer). Limite alinhado com o do Sienge (70MB).
+// Multer em memória pra evitar I/O em disco; o limite acompanha o
+// máximo aceito pelo Sienge (70MB por arquivo).
 const upload = multer({
     storage: multer.memoryStorage(),
     limits: { fileSize: 70 * 1024 * 1024 },

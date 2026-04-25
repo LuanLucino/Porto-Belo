@@ -1,5 +1,5 @@
-// NOTIFICAÇÕES: função que exibe mensagens usando as classes do preload.css (message-box)
-// Tipos disponíveis: 'error' (vermelho), 'warning' (amarelo), 'success' (verde), 'info' (vermelho)
+// Mostra um toast temporário no canto da tela; usado para validação
+// de formulário e erros não-fatais que o alert() poluiria.
 function showMessage(message, type = 'error', duration = 4000) {
     const box = document.getElementById('message-box');
     box.textContent = message;
@@ -12,6 +12,8 @@ function showMessage(message, type = 'error', duration = 4000) {
 
 let selectedFile = null;
 
+// Converte um File pra data URL (base64) pra que o arquivo sobreviva
+// à navegação entre páginas via localStorage.
 function fileToBase64(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -21,6 +23,8 @@ function fileToBase64(file) {
     });
 }
 
+// Preenche o cabeçalho com dados do fornecedor pra manter contexto
+// visual entre as telas do fluxo.
 function fillHeader() {
     const supplier = getLocalStorage('supplier');
     if (!supplier) return;
@@ -29,16 +33,19 @@ function fillHeader() {
     document.getElementById('cnpj-val').textContent = supplier.cnpj ?? '';
 }
 
+// Mostra o código do contrato escolhido pra confirmar visualmente o
+// alvo da NF antes do usuário preencher os campos.
 function fillContractInfo() {
     const contract = getLocalStorage('selectedContract');
     if (!contract) {
-        // NOTIFICAÇÕES: substituído alert() por showMessage()
         showMessage('Nenhum contrato selecionado. Volte e selecione um contrato.', 'error');
         return;
     }
     document.getElementById('codigo-contrato-val').textContent = contract.code ?? '';
 }
 
+// Captura o PDF da NF; o arquivo fica em memória até o usuário
+// avançar, quando é serializado para localStorage.
 function setupFileInput() {
     document.getElementById('invoiceFile').addEventListener('change', (e) => {
         selectedFile = e.target.files[0] || null;
@@ -46,76 +53,12 @@ function setupFileInput() {
     });
 }
 
-async function sendInvoiceData() {
-    const invoiceNumber = document.getElementById('numeroNota')?.value || '';
-    const invoiceValue = document.getElementById('valorNotaFiscal')?.value || '';
-    const emissionDate = document.getElementById('dataEmissao')?.value || '';
-    const dueDate = document.getElementById('dataVencimento')?.value || '';
-
-    if (!invoiceNumber) {
-        // NOTIFICAÇÕES: substituído alert() por showMessage()
-        showMessage('Por favor, preencha o número da nota.', 'error');
-        return;
-    }
-    // CAMPO OBRIGATÓRIO: validação da data de emissão
-    if (!emissionDate) {
-        // NOTIFICAÇÕES: substituído alert() por showMessage()
-        showMessage('Por favor, preencha a data de emissão.', 'error');
-        return;
-    }
-    // CAMPO OBRIGATÓRIO: validação da data de vencimento
-    if (!dueDate) {
-        // NOTIFICAÇÕES: substituído alert() por showMessage()
-        showMessage('Por favor, preencha a data de vencimento.', 'error');
-        return;
-    }
-    if (!invoiceValue) {
-        // NOTIFICAÇÕES: substituído alert() por showMessage()
-        showMessage('Por favor, preencha o valor da nota.', 'error');
-        return;
-    }
-
-    // CAMPO OBRIGATÓRIO: validação do anexo da nota fiscal
-    if (!selectedFile) {
-        // NOTIFICAÇÕES: substituído alert() por showMessage()
-        showMessage('Por favor, anexe a nota fiscal.', 'error');
-        return;
-    }
-
-    setLocalStorage('invoiceData', {
-        invoiceNumber,
-        invoiceValue,
-        emissionDate,
-        dueDate,
-        hasFile: !!selectedFile,
-    });
-
-    if (selectedFile) {
-        try {
-            const dataUrl = await fileToBase64(selectedFile);
-            setLocalStorage('invoiceFile', {
-                name: selectedFile.name,
-                type: selectedFile.type,
-                dataUrl,
-            });
-        } catch (err) {
-            console.error('Falha ao ler o arquivo da NF:', err);
-            // NOTIFICAÇÕES: substituído alert() por showMessage()
-            showMessage('Não foi possível ler o arquivo anexado. Tente novamente.', 'error');
-            return;
-        }
-    } else {
-        localStorage.removeItem('invoiceFile');
-    }
-
-    window.location.href = './payment-data.html';
-}
-
-// Formatação automática do campo Valor
+// Aplica máscara BRL no campo Valor enquanto o usuário digita, pra
+// evitar ambiguidade entre vírgula/ponto na hora do parse.
 const valorInput = document.getElementById("valorNotaFiscal");
 
 valorInput.addEventListener("input", function (e) {
-  let value = e.target.value.replace(/\D/g, ""); // só números
+  let value = e.target.value.replace(/\D/g, "");
   if (value) {
     let formatted = (Number(value) / 100).toLocaleString("pt-BR", {
       style: "currency",
@@ -127,6 +70,8 @@ valorInput.addEventListener("input", function (e) {
   }
 });
 
+// Valida o formulário, persiste os dados da NF (incluindo o PDF) em
+// localStorage e avança pra coleta dos dados de pagamento.
 async function sendInvoiceData() {
     const invoiceNumber = document.getElementById('numeroNota')?.value || '';
     const invoiceValueFormatted = document.getElementById('valorNotaFiscal')?.value || '';
@@ -150,7 +95,6 @@ async function sendInvoiceData() {
         return;
     }
 
-    // 🔑 Converter valor formatado em número puro
     const invoiceValue = parseFloat(invoiceValueFormatted.replace(/[^\d]/g, "")) / 100;
 
     if (!selectedFile) {
@@ -160,7 +104,7 @@ async function sendInvoiceData() {
 
     setLocalStorage('invoiceData', {
         invoiceNumber,
-        invoiceValue, // agora é número puro
+        invoiceValue,
         emissionDate,
         dueDate,
         hasFile: !!selectedFile,
@@ -185,10 +129,6 @@ async function sendInvoiceData() {
 
     window.location.href = './payment-data.html';
 }
-
-
-
-
 
 fillHeader();
 fillContractInfo();
