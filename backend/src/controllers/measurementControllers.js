@@ -1,8 +1,7 @@
-// Measurement controller: valida os identificadores do contrato e o payload,
-// e delega a criação da medição ao gateway do Sienge.
-
 const { siengeGateway } = require('../services/siengeService');
 
+// Cria a medição no Sienge a partir do que foi coletado pelo fluxo
+// (contrato, item, NF). Valida os obrigatórios antes de chamar a API.
 exports._createMeasurement = async (req, res, next) => {
   try {
     const { documentId, contractNumber, buildingId } = req.query;
@@ -37,6 +36,8 @@ exports._createMeasurement = async (req, res, next) => {
   }
 };
 
+// Anexa um arquivo (NF ou boleto) à medição já criada; cada chamada
+// envia um anexo só, então o frontend chama uma vez por arquivo.
 exports._sendMeasurementAttachment = async (req, res, next) => {
   try {
     const { documentId, contractNumber, buildingId, measurementNumber, description } = req.body ?? {};

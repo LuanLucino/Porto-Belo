@@ -1,3 +1,5 @@
+// Erro HTTP com status para o middleware de erro do Express devolver
+// a resposta certa sem cada controller ter que mapear status na mão.
 class HTTPError extends Error {
     constructor(statusCode, message) {
         super(message);
@@ -6,7 +8,12 @@ class HTTPError extends Error {
     }
 }
 
+// Funções de tradução entre os formatos crus do Sienge e os schemas
+// estáveis que o frontend consome — qualquer mudança no Sienge fica
+// confinada aqui, sem espalhar pelo resto do código.
 class SiengeUtils {
+    // Traduz erros do axios em HTTPError com mensagem útil; também
+    // loga o body cru no console para debug rápido em runtime.
     static mapSiengeError(err, fallbackMessage) {
         const status = err?.response?.status;
         const data = err?.response?.data;
@@ -28,6 +35,9 @@ class SiengeUtils {
         }
         return new HTTPError(502, fullMsg || fallbackMessage);
     }
+
+    // Recorta só os campos do fornecedor que o portal usa, com fallbacks
+    // para nomes alternativos que o Sienge eventualmente devolve.
     static adaptSupplier(raw) {
         if (!raw) return null;
         return {
@@ -40,6 +50,26 @@ class SiengeUtils {
         };
     }
 
+    // Normaliza uma conta bancária do fornecedor; concatena
+    // accountNumber+checkDigit porque o Sienge separa esses campos.
+    static adaptBankInformation(raw) {
+        if (!raw) return null;
+        const accountFull = [raw.accountNumber, raw.checkDigit].filter(Boolean).join('-');
+        return {
+            id: raw.id ?? null,
+            bankCode: raw.bank ?? raw.bankCode ?? '',
+            bankName: raw.nameOfBank ?? raw.bankName ?? '',
+            agency: raw.agency ?? '',
+            accountNumber: accountFull || raw.accountNumber || '',
+            accountType: raw.accountType ?? '',
+            holderName: raw.nameOfRecipient ?? raw.holderName ?? '',
+            holderDocument: raw.cnpj || raw.cpf || raw.holderDocument || '',
+            isDefault: raw.defaultFlag === 'S' || raw.defaultFlag === true,
+        };
+    }
+
+    // Adapta um contrato de suprimentos; também soma totalLaborValue +
+    // totalMaterialValue porque o Sienge não devolve um total único.
     static adaptContract(raw) {
         const firstBuilding = raw.buildings?.[0];
         const totalLaborValue = raw.totalLaborValue ?? 0;
@@ -55,8 +85,6 @@ class SiengeUtils {
             totalMaterialValue,
             totalValue: totalLaborValue + totalMaterialValue,
             supplierId: raw.creditorId ?? raw.supplierId ?? null,
-            // In a contract record, the supplier can only be in one building
-            // So i take the first one if it exists
             buildingId: firstBuilding?.buildingId ?? null,
             buildingUnitId: firstBuilding?.buildingUnitId
                 ?? firstBuilding?.unitId
@@ -67,6 +95,8 @@ class SiengeUtils {
         };
     }
 
+    // Resolve o buildingUnitId do contrato testando vários nomes de
+    // campo possíveis; o Sienge não documenta qual chave usa.
     static adaptContractBuilding(raw) {
         if (!raw) return null;
         return {
@@ -85,6 +115,8 @@ class SiengeUtils {
         };
     }
 
+    // Achata um item de contrato pro shape que a tela de itens usa, já
+    // calculando totalPrice e extraindo o buildingUnitId aninhado.
     static adaptContractItem(raw) {
         if (!raw) return null;
         const firstAppropriation = raw.buildingAppropriations?.[0];
@@ -107,13 +139,13 @@ class SiengeUtils {
         };
     }
 
-
+    // Atalho para criar um HTTPError sem precisar instanciar a classe;
+    // usado quando o gateway quer abortar com um status específico.
     static httpError(statusCode, message) {
         const error = new Error(message);
         error.statusCode = statusCode;
         return error;
     }
-
 }
 
 module.exports = { SiengeUtils, HTTPError };

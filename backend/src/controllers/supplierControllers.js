@@ -1,8 +1,7 @@
-// Controllers dos endpoints de fornecedor.
-// Validação de CNPJ (check digit, formato) é responsabilidade do frontend.
-// Aqui garantimos presença do parâmetro e propagamos os erros do Sienge de forma coerente.
-
 const { siengeGateway } = require('../services/siengeService');
+
+// Endpoint booleano usado pelo home para decidir se libera o fluxo;
+// trata erro 400 como "não cadastrado" porque o Sienge retorna assim.
 exports._isSupplierRegistered = async (req, res, next) => {
   try {
     const cnpj = req.query.cnpj;
@@ -13,7 +12,6 @@ exports._isSupplierRegistered = async (req, res, next) => {
     const supplier = await siengeGateway.getSupplier(cnpj);
     return res.json({ isRegistered: supplier !== null });
   } catch (err) {
-    // (boolean endpoint: true of false, exists or not exists.)
     if (err.statusCode === 400) {
       return res.json({ isRegistered: false });
     }
@@ -21,6 +19,8 @@ exports._isSupplierRegistered = async (req, res, next) => {
   }
 };
 
+// Devolve os dados do fornecedor pro frontend salvar no localStorage
+// e usar como contexto nas próximas telas (header, favorecido etc.).
 exports._getSupplier = async (req, res, next) => {
   try {
     const cnpj = req.query.cnpj;
@@ -36,12 +36,12 @@ exports._getSupplier = async (req, res, next) => {
 
     return res.json({ supplierData });
   } catch (err) {
-    // Fix this later, the sienge does not return 404 when supplier is not found,
-    // It returns 200 but with an empty array, so we need to handle this case separately
     return next(err);
   }
 };
 
+// Lista os contratos vinculados ao fornecedor para a tela de seleção;
+// supplierId vem do supplier salvo no home.
 exports._getContracts = async (req, res, next) => {
   try {
     const supplierId = req.query.supplierId;
@@ -55,6 +55,23 @@ exports._getContracts = async (req, res, next) => {
   }
 };
 
+// Pré-carrega as contas bancárias do fornecedor logo no home, pra que
+// a tela de pagamento tenha o que sugerir sem nova chamada à rede.
+exports._getSupplierBankInfo = async (req, res, next) => {
+  try {
+    const supplierId = req.query.supplierId;
+    if (!supplierId) {
+      return res.status(400).json({ error: 'supplierId é obrigatório.' });
+    }
+    const bankInformations = await siengeGateway.getSupplierBankInformations(Number(supplierId));
+    return res.json({ bankInformations });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+// Resolve o buildingUnitId do contrato; chamado pelo choose-item antes
+// de pedir os itens, porque o /items só funciona com esse id.
 exports._getContractBuildings = async (req, res, next) => {
   try {
     const { documentId, contractNumber } = req.query;
@@ -71,6 +88,8 @@ exports._getContractBuildings = async (req, res, next) => {
   }
 };
 
+// Retorna os itens do contrato para o usuário escolher qual será
+// medido na tela choose-item.
 exports._getContractItems = async (req, res, next) => {
   try {
     const { documentId, contractNumber, buildingId, buildingUnitId } = req.query;

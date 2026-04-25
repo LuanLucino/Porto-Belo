@@ -1,11 +1,7 @@
-
-
 class SiengeControllerUtils {
+    // Calcula os pares offset/limit necessários para paginar através de
+    // todos os registros, já que o Sienge limita cada página a 200.
     static calculateOffset(records) {
-        // The services gets the contracts, but it only returns the first 200 records
-        // So, in order to get all the contracts, we need to calculate the offset steps
-        // Based on the total of records thate comes in the response
-
         const offsetSteps = [];
         const totalRecords = records.resultSetMetadata.count;
         const pageSize = 200;
@@ -27,6 +23,5 @@ class SiengeControllerUtils {
         return offsetSteps;
     }
 }
-
 
 module.exports = { SiengeControllerUtils };

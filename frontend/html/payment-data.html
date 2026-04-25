@@ -84,9 +84,11 @@
                           </div>
                         </div>
                         <div class="mt-8 flex items-center">
-                          <button class="rounded py-2 text-white transition-colors w-auto bg-tertiary px-8 text-2xl hover:bg-tertiary-hover" type="button">
+                          <input type="file" id="boletoFile" accept=".pdf,.png,.jpg,.jpeg" hidden />
+                          <button class="rounded py-2 text-white transition-colors w-auto bg-tertiary px-8 text-2xl hover:bg-tertiary-hover" type="button" onclick="document.getElementById('boletoFile').click()">
                             <p>Anexar Boleto</p>
                           </button>
+                          <span id="boletoFileName" class="ml-4 text-sm"></span>
                         </div>
                       </fieldset>
                     </form>
@@ -129,6 +131,15 @@
                     <form id="formRef">
                       <fieldset>
                         <legend>Dados Bancários</legend>
+
+                        <!-- Sugestão: contas bancárias cadastradas no Sienge para este fornecedor -->
+                        <div id="bankAccountPickerWrapper" class="styles_container__vlAK4 mb-4" style="display:none">
+                          <label for="bankAccountPicker">Conta cadastrada no Sienge</label>
+                          <select id="bankAccountPicker" name="bankAccountPicker" autocomplete="off">
+                            <option value="">— Selecione uma conta cadastrada ou preencha manualmente abaixo —</option>
+                          </select>
+                        </div>
+
                         <div class="grid grid-cols-2 gap-4">
                           <div class="col-span-2 grid grid-cols-3 gap-4">
                             <div class="styles_container__vlAK4">
@@ -149,6 +160,7 @@
                                 placeholder="Digite o CPF ou CNPJ" />
                             </div>
                           </div>
+                          <div class="col-span-2 grid grid-cols-4 gap-4">
                           <div class="styles_container__vlAK4">
                             <label for="bankCode">Banco</label>
                             <input id="bankCode" name="bankCode" type="search" list="bankCodes" />
@@ -510,7 +522,6 @@
                             <option value="310 - VORTX DISTRIBUIDORA DE TÍTULOS E VALORES MOBILIÁRIOS LTDA.">
                               310 - VORTX DISTRIBUIDORA de Títulos e Valores Mobiliários LTDA.
                             </option>
-                            <datalist id="bankCodes">
                               <option value="380 - PICPAY INSTITUIÇÃO DE PAGAMENTO S.A.">380 - PICPAY INSTITUIÇÃO DE
                                 PAGAMENTO S.A.</option>
                               <option value="163 - Commerzbank Brasil S.A. - Banco Múltiplo">163 - Commerzbank Brasil
@@ -872,23 +883,11 @@
                               </select>
                             </div>
                           </div>
+                          </div>
                         </fieldset>
                       </form>
                     </section>
                   </div><!-- /section-transfer -->
-
-                  <!-- Seção de anexos -->
-                  <fieldset class="mt-4">
-                    <legend>Anexos</legend>
-                    <div class="flex flex-col items-start">
-                      <button
-                        class="rounded py-2 text-white transition-colors w-auto bg-tertiary px-8 text-2xl hover:bg-tertiary-hover"
-                        type="button">
-                        <p>Incluir Anexo</p>
-                      </button>
-                      <div class="mt-4 flex flex-col items-start space-y-4"></div>
-                    </div>
-                  </fieldset>
 
               </section>
               <div class="ml-auto mt-8 flex max-w-lg space-x-4">
